@@ -59,10 +59,14 @@ app.get("/health", (req, res) => {
   });
 });
 
-// API routes (will be added)
-// app.use('/api/admin', require('./routes/admin.routes'));
-// app.use('/api/voter', require('./routes/voter.routes'));
-// app.use('/api/election', require('./routes/election.routes'));
+// API routes
+const adminRoutes = require("./routes/admin.routes");
+const voterRoutes = require("./routes/voter.routes");
+const authRoutes = require("./routes/auth.routes");
+
+app.use("/api/admin", adminRoutes);
+app.use("/api/voter", voterRoutes);
+app.use("/api/auth", authRoutes);
 
 // Root endpoint
 app.get("/", (req, res) => {
@@ -71,9 +75,9 @@ app.get("/", (req, res) => {
     version: "1.0.0",
     endpoints: {
       health: "/health",
+      auth: "/api/auth",
       admin: "/api/admin",
       voter: "/api/voter",
-      election: "/api/election",
     },
   });
 });
@@ -90,9 +94,9 @@ app.use((req, res) => {
     availableEndpoints: [
       "/",
       "/health",
+      "/api/auth",
       "/api/admin",
       "/api/voter",
-      "/api/election",
     ],
   });
 });
