@@ -8,8 +8,10 @@
   },
   "scripts": {
     "compile": "truffle compile",
-    "deploy:ganache": "truffle migrate --network ganache",
-    "deploy:reset": "truffle migrate --reset --network ganache",
+    "deploy:ganache": "truffle migrate --network ganache && node scripts/copy-artifacts.js",
+    "deploy:reset": "truffle migrate --reset --network ganache && node scripts/copy-artifacts.js",
+    "deploy:only": "truffle migrate --network ganache",
+    "copy-artifacts": "node scripts/copy-artifacts.js",
     "test": "truffle test",
     "console": "truffle console --network ganache"
   },
