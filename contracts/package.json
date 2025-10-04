@@ -1,0 +1,27 @@
+{
+  "name": "contracts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "compile": "truffle compile",
+    "deploy:ganache": "truffle migrate --network ganache",
+    "deploy:reset": "truffle migrate --reset --network ganache",
+    "test": "truffle test",
+    "console": "truffle console --network ganache"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@truffle/hdwallet-provider": "^2.1.15",
+    "dotenv": "^17.2.3",
+    "truffle": "^5.11.5"
+  },
+  "dependencies": {
+    "web3": "^4.16.0"
+  }
+}
