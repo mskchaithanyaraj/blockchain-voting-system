@@ -115,7 +115,7 @@ app.use((err, req, res, next) => {
 // Server Startup
 // ============================================
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   console.log("\n========================================");
   console.log("🚀 Blockchain Voting System - Backend");
   console.log("========================================");
@@ -124,11 +124,31 @@ const server = app.listen(PORT, () => {
   console.log(`🔗 API URL: http://localhost:${PORT}`);
   console.log(`❤️  Health Check: http://localhost:${PORT}/health`);
   console.log("========================================\n");
+
+  // Start blockchain event listeners
+  try {
+    const eventListenerService = require("./services/event-listener.service");
+    await eventListenerService.startListening();
+  } catch (error) {
+    console.error("⚠️  Failed to start event listeners:", error.message);
+    console.error(
+      "   The server will continue running without event listeners"
+    );
+  }
 });
 
 // Graceful shutdown
 process.on("SIGTERM", () => {
   console.log("SIGTERM signal received: closing HTTP server");
+
+  // Stop event listeners
+  try {
+    const eventListenerService = require("./services/event-listener.service");
+    eventListenerService.stopListening();
+  } catch (error) {
+    console.error("Error stopping event listeners:", error.message);
+  }
+
   server.close(() => {
     console.log("HTTP server closed");
     process.exit(0);
