@@ -22,11 +22,13 @@ module.exports = {
       },
     },
 
-    // Development network (Truffle's built-in)
+    // Development network (Truffle's built-in) - Configured for Ganache
     development: {
       host: "127.0.0.1",
-      port: 8545,
-      network_id: "*",
+      port: 7545, // Changed from 8545 to 7545 to match Ganache
+      network_id: "5777", // Match Ganache network ID
+      gas: 6721975,
+      gasPrice: 20000000000,
     },
   },
 
