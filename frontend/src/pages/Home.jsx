@@ -80,14 +80,13 @@ const Home = () => {
                 to="/register"
                 className={`
                   px-8 py-4 rounded-lg font-semibold text-body-large transition-all duration-300
-                  shadow-medium hover:shadow-heavy hover:scale-105 focus-ring
+                  shadow-medium hover:shadow-heavy hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2
+                  ${
+                    isDark
+                      ? "bg-white text-black hover:bg-gray-100 focus:ring-gray-400"
+                      : "bg-black text-white hover:bg-gray-800 focus:ring-gray-600"
+                  }
                 `}
-                style={{
-                  backgroundColor: isDark
-                    ? "var(--clr-primary-a20)"
-                    : "var(--clr-primary-a0)",
-                  color: "var(--clr-surface-a0)",
-                }}
               >
                 Get Started
               </Link>
@@ -95,18 +94,13 @@ const Home = () => {
                 to="/login"
                 className={`
                   px-8 py-4 rounded-lg font-semibold text-body-large transition-all duration-300
-                  border-2 shadow-medium hover:shadow-heavy hover:scale-105 focus-ring
-                  ${isDark ? "hover:bg-surface-a20" : "hover:bg-surface-a20"}
+                  border-2 shadow-medium hover:shadow-heavy hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2
+                  ${
+                    isDark
+                      ? "border-white text-white hover:bg-white hover:text-black focus:ring-gray-400"
+                      : "border-black text-black hover:bg-black hover:text-white focus:ring-gray-600"
+                  }
                 `}
-                style={{
-                  borderColor: isDark
-                    ? "var(--clr-primary-a20)"
-                    : "var(--clr-primary-a0)",
-                  color: isDark
-                    ? "var(--clr-primary-a20)"
-                    : "var(--clr-primary-a0)",
-                  backgroundColor: "transparent",
-                }}
               >
                 Sign In
               </Link>
@@ -118,14 +112,13 @@ const Home = () => {
                   to="/admin/dashboard"
                   className={`
                     px-8 py-4 rounded-lg font-semibold text-body-large transition-all duration-300
-                    shadow-medium hover:shadow-heavy hover:scale-105 focus-ring
+                    shadow-medium hover:shadow-heavy hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2
+                    ${
+                      isDark
+                        ? "bg-white text-black hover:bg-gray-100 focus:ring-gray-400"
+                        : "bg-black text-white hover:bg-gray-800 focus:ring-gray-600"
+                    }
                   `}
-                  style={{
-                    backgroundColor: isDark
-                      ? "var(--clr-primary-a20)"
-                      : "var(--clr-primary-a0)",
-                    color: "var(--clr-surface-a0)",
-                  }}
                 >
                   Go to Admin Dashboard
                 </Link>
@@ -135,14 +128,13 @@ const Home = () => {
                   to="/voter/dashboard"
                   className={`
                     px-8 py-4 rounded-lg font-semibold text-body-large transition-all duration-300
-                    shadow-medium hover:shadow-heavy hover:scale-105 focus-ring
+                    shadow-medium hover:shadow-heavy hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2
+                    ${
+                      isDark
+                        ? "bg-white text-black hover:bg-gray-100 focus:ring-gray-400"
+                        : "bg-black text-white hover:bg-gray-800 focus:ring-gray-600"
+                    }
                   `}
-                  style={{
-                    backgroundColor: isDark
-                      ? "var(--clr-success-a10)"
-                      : "var(--clr-success-a0)",
-                    color: "var(--clr-surface-a0)",
-                  }}
                 >
                   Go to Voter Dashboard
                 </Link>
@@ -316,54 +308,130 @@ const Home = () => {
 
       {/* How It Works Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
+        <h2
+          className={`text-3xl md:text-4xl font-bold text-center mb-12 ${
+            isDark ? "text-white" : "text-gray-900"
+          }`}
+        >
           How It Works
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Step 1 */}
           <div className="text-center">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+            <div
+              className={`
+              ${
+                isDark
+                  ? "bg-gradient-to-r from-gray-700 to-gray-800"
+                  : "bg-gradient-to-r from-gray-800 to-black"
+              } 
+              text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4
+            `}
+            >
               1
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Register</h3>
-            <p className="text-gray-600 text-sm">
+            <h3
+              className={`text-lg font-bold mb-2 ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Register
+            </h3>
+            <p
+              className={`text-sm ${
+                isDark ? "text-gray-300" : "text-gray-600"
+              }`}
+            >
               Create an account with your Ethereum wallet address
             </p>
           </div>
 
           {/* Step 2 */}
           <div className="text-center">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+            <div
+              className={`
+              ${
+                isDark
+                  ? "bg-gradient-to-r from-gray-700 to-gray-800"
+                  : "bg-gradient-to-r from-gray-800 to-black"
+              } 
+              text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4
+            `}
+            >
               2
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
+            <h3
+              className={`text-lg font-bold mb-2 ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
               Get Verified
             </h3>
-            <p className="text-gray-600 text-sm">
+            <p
+              className={`text-sm ${
+                isDark ? "text-gray-300" : "text-gray-600"
+              }`}
+            >
               Admin verifies your eligibility to vote
             </p>
           </div>
 
           {/* Step 3 */}
           <div className="text-center">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+            <div
+              className={`
+              ${
+                isDark
+                  ? "bg-gradient-to-r from-gray-700 to-gray-800"
+                  : "bg-gradient-to-r from-gray-800 to-black"
+              } 
+              text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4
+            `}
+            >
               3
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Cast Vote</h3>
-            <p className="text-gray-600 text-sm">
+            <h3
+              className={`text-lg font-bold mb-2 ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Cast Vote
+            </h3>
+            <p
+              className={`text-sm ${
+                isDark ? "text-gray-300" : "text-gray-600"
+              }`}
+            >
               Connect MetaMask and vote for your preferred candidate
             </p>
           </div>
 
           {/* Step 4 */}
           <div className="text-center">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+            <div
+              className={`
+              ${
+                isDark
+                  ? "bg-gradient-to-r from-gray-700 to-gray-800"
+                  : "bg-gradient-to-r from-gray-800 to-black"
+              } 
+              text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4
+            `}
+            >
               4
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
+            <h3
+              className={`text-lg font-bold mb-2 ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
               View Results
             </h3>
-            <p className="text-gray-600 text-sm">
+            <p
+              className={`text-sm ${
+                isDark ? "text-gray-300" : "text-gray-600"
+              }`}
+            >
               Check the results after the election ends
             </p>
           </div>
@@ -372,30 +440,86 @@ const Home = () => {
 
       {/* Technology Stack Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
+        <h2
+          className={`text-3xl md:text-4xl font-bold text-center mb-12 ${
+            isDark ? "text-white" : "text-gray-900"
+          }`}
+        >
           Built With Modern Technology
         </h2>
-        <div className="bg-white rounded-lg shadow-xl p-8">
+        <div
+          className={`rounded-lg shadow-xl p-8 ${
+            isDark ? "bg-gray-800" : "bg-white"
+          }`}
+        >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-4xl mb-2">⛓️</div>
-              <p className="font-semibold text-gray-900">Ethereum</p>
-              <p className="text-sm text-gray-600">Blockchain</p>
+              <p
+                className={`font-semibold ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
+                Ethereum
+              </p>
+              <p
+                className={`text-sm ${
+                  isDark ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
+                Blockchain
+              </p>
             </div>
             <div>
               <div className="text-4xl mb-2">📜</div>
-              <p className="font-semibold text-gray-900">Solidity</p>
-              <p className="text-sm text-gray-600">Smart Contracts</p>
+              <p
+                className={`font-semibold ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
+                Solidity
+              </p>
+              <p
+                className={`text-sm ${
+                  isDark ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
+                Smart Contracts
+              </p>
             </div>
             <div>
               <div className="text-4xl mb-2">⚛️</div>
-              <p className="font-semibold text-gray-900">React</p>
-              <p className="text-sm text-gray-600">Frontend</p>
+              <p
+                className={`font-semibold ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
+                React
+              </p>
+              <p
+                className={`text-sm ${
+                  isDark ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
+                Frontend
+              </p>
             </div>
             <div>
               <div className="text-4xl mb-2">🦊</div>
-              <p className="font-semibold text-gray-900">MetaMask</p>
-              <p className="text-sm text-gray-600">Wallet</p>
+              <p
+                className={`font-semibold ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
+                MetaMask
+              </p>
+              <p
+                className={`text-sm ${
+                  isDark ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
+                Wallet
+              </p>
             </div>
           </div>
         </div>
@@ -403,7 +527,16 @@ const Home = () => {
 
       {/* Footer CTA */}
       {!isAuthenticated && (
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 py-16">
+        <div
+          className={`
+          ${
+            isDark
+              ? "bg-gradient-to-r from-gray-800 to-black"
+              : "bg-gradient-to-r from-gray-800 to-black"
+          } 
+          py-16
+        `}
+        >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
               Ready to Get Started?
@@ -414,7 +547,7 @@ const Home = () => {
             </p>
             <Link
               to="/register"
-              className="inline-block px-8 py-4 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition duration-200 font-bold text-lg shadow-xl"
+              className="inline-block px-8 py-4 bg-white text-black rounded-lg hover:bg-gray-100 transition duration-200 font-bold text-lg shadow-xl"
             >
               Create Your Account
             </Link>

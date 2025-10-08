@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import ErrorMessage from "./ErrorMessage";
 import LoadingSpinner from "./LoadingSpinner";
 
@@ -10,6 +11,7 @@ import LoadingSpinner from "./LoadingSpinner";
  */
 const LoginForm = () => {
   const { login, isAdmin, isVoter } = useAuth();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
@@ -77,16 +79,16 @@ const LoginForm = () => {
         {/* Header */}
         <div className="text-center">
           <div
-            className="mx-auto h-16 w-16 rounded-full flex items-center justify-center backdrop-blur-sm border shadow-lg transition-all duration-300"
-            style={{
-              background: "var(--clr-gradient-primary)",
-              borderColor: "var(--clr-surface-a10)",
-              boxShadow: "var(--shadow-lg)",
-            }}
+            className={`
+              mx-auto h-16 w-16 rounded-full flex items-center justify-center 
+              backdrop-blur-sm border shadow-lg transition-all duration-300
+              ${
+                isDark ? "bg-white border-gray-200" : "bg-black border-gray-800"
+              }
+            `}
           >
             <svg
-              className="w-10 h-10"
-              style={{ color: "var(--clr-text-on-accent)" }}
+              className={`w-10 h-10 ${isDark ? "text-black" : "text-white"}`}
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -99,20 +101,30 @@ const LoginForm = () => {
             </svg>
           </div>
           <h2
-            className="mt-6 text-heading-2 font-medium transition-colors duration-300"
-            style={{ color: "var(--clr-text-primary)" }}
+            className={`
+              mt-6 text-2xl font-medium transition-colors duration-300
+              ${isDark ? "text-white" : "text-gray-900"}
+            `}
           >
             Sign in to your account
           </h2>
           <p
-            className="mt-2 text-body-2 transition-colors duration-300"
-            style={{ color: "var(--clr-text-secondary)" }}
+            className={`
+              mt-2 text-sm transition-colors duration-300
+              ${isDark ? "text-gray-300" : "text-gray-600"}
+            `}
           >
             Or{" "}
             <Link
               to="/register"
-              className="font-medium transition-colors duration-200 hover:underline"
-              style={{ color: "var(--clr-accent-primary)" }}
+              className={`
+                font-medium transition-colors duration-200 hover:underline
+                ${
+                  isDark
+                    ? "text-white hover:text-gray-200"
+                    : "text-black hover:text-gray-800"
+                }
+              `}
             >
               create a new account
             </Link>
@@ -193,14 +205,16 @@ const LoginForm = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-3 px-4 rounded-lg text-body-1 font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 hover:scale-[1.02] active:scale-[0.98]"
-                style={{
-                  background: "var(--clr-gradient-primary)",
-                  color: "var(--clr-text-on-accent)",
-                  boxShadow: "var(--shadow-md)",
-                  focusRingColor: "var(--clr-accent-primary)",
-                  focusRingOffsetColor: "var(--clr-surface-primary)",
-                }}
+                className={`
+                  w-full flex justify-center py-3 px-4 rounded-lg font-medium transition-all duration-200 
+                  disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 
+                  hover:scale-[1.02] active:scale-[0.98] shadow-md
+                  ${
+                    isDark
+                      ? "bg-white text-black hover:bg-gray-100 focus:ring-gray-400"
+                      : "bg-black text-white hover:bg-gray-800 focus:ring-gray-600"
+                  }
+                `}
               >
                 {loading ? "Signing in..." : "Sign in"}
               </button>

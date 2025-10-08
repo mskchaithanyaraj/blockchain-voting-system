@@ -91,13 +91,8 @@ const Navbar = () => {
                 <span
                   className={`
                     text-xl font-brand transition-colors duration-300
-                    ${isDark ? "text-primary-a20" : "text-primary-a0"}
+                    ${isDark ? "text-white" : "text-black"}
                   `}
-                  style={{
-                    color: isDark
-                      ? "var(--clr-primary-a20)"
-                      : "var(--clr-primary-a0)",
-                  }}
                 >
                   BallotX
                 </span>
@@ -244,19 +239,13 @@ const Navbar = () => {
                     to="/register"
                     className={`
                       px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300
-                      hover:scale-105 focus-ring shadow-medium hover:shadow-heavy
+                      hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-medium hover:shadow-heavy
                       ${
                         isDark
-                          ? "bg-primary-a20 text-surface-a0"
-                          : "bg-primary-a0 text-surface-a0"
+                          ? "bg-white text-black hover:bg-gray-100 focus:ring-gray-400"
+                          : "bg-black text-white hover:bg-gray-800 focus:ring-gray-600"
                       }
                     `}
-                    style={{
-                      backgroundColor: isDark
-                        ? "var(--clr-primary-a20)"
-                        : "var(--clr-primary-a0)",
-                      color: "var(--clr-surface-a0)",
-                    }}
                   >
                     Register
                   </Link>
@@ -476,19 +465,13 @@ const Navbar = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`
                   block px-4 py-3 rounded-lg text-base font-medium transition-all duration-300
-                  shadow-medium
+                  shadow-medium focus:outline-none focus:ring-2 focus:ring-offset-2
                   ${
                     isDark
-                      ? "bg-primary-a20 text-surface-a0"
-                      : "bg-primary-a0 text-surface-a0"
+                      ? "bg-white text-black hover:bg-gray-100 focus:ring-gray-400"
+                      : "bg-black text-white hover:bg-gray-800 focus:ring-gray-600"
                   }
                 `}
-                style={{
-                  backgroundColor: isDark
-                    ? "var(--clr-primary-a20)"
-                    : "var(--clr-primary-a0)",
-                  color: "var(--clr-surface-a0)",
-                }}
               >
                 Register
               </Link>
