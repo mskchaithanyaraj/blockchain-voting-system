@@ -77,6 +77,25 @@ const VoterDashboard = () => {
     }
   };
 
+  const handleSwitchAccount = async () => {
+    try {
+      setError(null);
+      const address = await web3Provider.selectAccount();
+      await web3Provider.switchToGanache();
+      setWalletAddress(address);
+      setWalletConnected(true);
+    } catch (err) {
+      console.error("Error switching account:", err);
+      setError(err.message || "Failed to switch account");
+    }
+  };
+
+  const handleDisconnectWallet = () => {
+    setWalletAddress(null);
+    setWalletConnected(false);
+    setError(null);
+  };
+
   const getElectionStateText = (state) => {
     const states = {
       0: "Not Started",
@@ -197,37 +216,56 @@ const VoterDashboard = () => {
               </div>
             </div>
           ) : walletConnected ? (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="bg-green-100 rounded-full p-2">
-                  <svg
-                    className="w-6 h-6 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
+            <div>
+              <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="bg-green-100 rounded-full p-2">
+                    <svg
+                      className="w-6 h-6 text-green-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Connected Address</p>
+                    <p className="font-mono text-sm font-semibold text-gray-900">
+                      {walletAddress
+                        ? `${walletAddress.slice(
+                            0,
+                            10
+                          )}...${walletAddress.slice(-8)}`
+                        : ""}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">Connected Address</p>
-                  <p className="font-mono text-sm font-semibold text-gray-900">
-                    {walletAddress
-                      ? `${walletAddress.slice(0, 10)}...${walletAddress.slice(
-                          -8
-                        )}`
-                      : ""}
-                  </p>
-                </div>
+                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                  Connected
+                </span>
               </div>
-              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
-                Connected
-              </span>
+
+              {/* Account Management Buttons */}
+              <div className="flex space-x-3">
+                <button
+                  onClick={handleSwitchAccount}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 font-semibold text-sm"
+                >
+                  Switch Account
+                </button>
+                <button
+                  onClick={handleDisconnectWallet}
+                  className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-200 font-semibold text-sm"
+                >
+                  Disconnect
+                </button>
+              </div>
             </div>
           ) : (
             <div>

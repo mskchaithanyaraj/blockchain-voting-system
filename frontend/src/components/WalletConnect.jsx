@@ -100,6 +100,52 @@ const WalletConnect = ({ onConnect, onDisconnect, compact = false }) => {
     }
   };
 
+  const handleDisconnect = async () => {
+    try {
+      setLoading(true);
+      setWalletAddress(null);
+      setIsConnected(false);
+      setIsCorrectNetwork(false);
+      setError(null);
+
+      // Call disconnect callback
+      if (onDisconnect) {
+        onDisconnect();
+      }
+
+      // Note: MetaMask doesn't have a direct disconnect method
+      // Users need to disconnect from MetaMask directly or switch accounts
+    } catch (err) {
+      console.error("Error disconnecting:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSwitchAccount = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Use selectAccount to force account selection dialog
+      const address = await web3Provider.selectAccount();
+      await web3Provider.switchToGanache();
+
+      setWalletAddress(address);
+      setIsConnected(true);
+      setIsCorrectNetwork(true);
+
+      if (onConnect) {
+        onConnect(address);
+      }
+    } catch (err) {
+      console.error("Error switching account:", err);
+      setError(err.message || "Failed to switch account");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSwitchNetwork = async () => {
     try {
       setLoading(true);
@@ -141,8 +187,18 @@ const WalletConnect = ({ onConnect, onDisconnect, compact = false }) => {
               Switch Network
             </button>
           )}
-          <div className="px-3 py-2 bg-green-100 text-green-800 rounded-lg text-sm font-mono">
-            {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+          <div className="flex items-center space-x-2">
+            <div className="px-3 py-2 bg-green-100 text-green-800 rounded-lg text-sm font-mono">
+              {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+            </div>
+            <button
+              onClick={handleSwitchAccount}
+              disabled={loading}
+              className="px-2 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200 text-sm font-semibold"
+              title="Switch Account"
+            >
+              ↻
+            </button>
           </div>
         </div>
       );
@@ -229,9 +285,29 @@ const WalletConnect = ({ onConnect, onDisconnect, compact = false }) => {
                 </p>
               </div>
             </div>
-            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
-              Connected
-            </span>
+            <div className="flex items-center space-x-2">
+              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                Connected
+              </span>
+            </div>
+          </div>
+
+          {/* Account Management Buttons */}
+          <div className="flex space-x-3 mb-4">
+            <button
+              onClick={handleSwitchAccount}
+              disabled={loading}
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 font-semibold text-sm disabled:opacity-50"
+            >
+              {loading ? "Switching..." : "Switch Account"}
+            </button>
+            <button
+              onClick={handleDisconnect}
+              disabled={loading}
+              className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-200 font-semibold text-sm disabled:opacity-50"
+            >
+              Disconnect
+            </button>
           </div>
 
           {!isCorrectNetwork && (

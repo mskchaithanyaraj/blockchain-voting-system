@@ -75,6 +75,48 @@ export const connectWallet = async () => {
 };
 
 /**
+ * Force MetaMask to show account selection dialog
+ * @returns {Promise<string>} Selected wallet address
+ * @throws {Error} If connection fails or user rejects
+ */
+export const selectAccount = async () => {
+  try {
+    if (!isMetaMaskInstalled()) {
+      throw new Error(
+        "MetaMask is not installed. Please install MetaMask extension."
+      );
+    }
+
+    // Use wallet_requestPermissions to force account selection
+    await window.ethereum.request({
+      method: "wallet_requestPermissions",
+      params: [{ eth_accounts: {} }],
+    });
+
+    // Then get the selected accounts
+    const accounts = await window.ethereum.request({
+      method: "eth_accounts",
+    });
+
+    if (accounts.length === 0) {
+      throw new Error(
+        "No accounts found. Please create an account in MetaMask."
+      );
+    }
+
+    const address = accounts[0];
+    console.log("Selected account:", address);
+    return address;
+  } catch (error) {
+    console.error("Error selecting account:", error);
+    if (error.code === 4001) {
+      throw new Error("User rejected the account selection.");
+    }
+    throw error;
+  }
+};
+
+/**
  * Get the currently connected wallet address
  * @returns {Promise<string|null>} Wallet address or null if not connected
  */
@@ -257,6 +299,7 @@ export default {
   getProvider,
   getSigner,
   connectWallet,
+  selectAccount,
   getConnectedAddress,
   getContract,
   switchToGanache,

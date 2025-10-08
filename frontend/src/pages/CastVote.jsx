@@ -44,7 +44,7 @@ const CastVote = () => {
 
       // Fetch election state
       const stateResponse = await apiService.getElectionState();
-      setElectionState(stateResponse.data.data.state);
+      setElectionState(stateResponse.data.data.state.stateNumber);
     } catch (err) {
       console.error("Error fetching page data:", err);
       setError(err.message || "Failed to load page data");
