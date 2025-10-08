@@ -112,4 +112,16 @@ router.get(
   adminController.getResults
 );
 
+/**
+ * @route   GET /api/admin/election/stats
+ * @desc    Get election statistics
+ * @access  Admin only
+ */
+router.get(
+  "/election/stats",
+  verifyToken,
+  isAdmin,
+  adminController.getElectionStats
+);
+
 module.exports = router;

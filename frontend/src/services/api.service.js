@@ -217,6 +217,14 @@ export const getResultsAdmin = () => {
   return api.get("/admin/election/results");
 };
 
+/**
+ * Get election statistics (Admin)
+ * @returns {Promise} API response with election stats
+ */
+export const getElectionStats = () => {
+  return api.get("/admin/election/stats");
+};
+
 // ============================================
 // Voter API Endpoints
 // ============================================

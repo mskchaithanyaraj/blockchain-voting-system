@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import * as apiService from "../services/api.service";
 
@@ -18,18 +18,14 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Fetch election state
-      const stateResponse = await apiService.getElectionState();
-      const electionData = stateResponse.data.data;
+      // Fetch election statistics
+      const statsResponse = await apiService.getElectionStats();
+      const electionData = statsResponse.data.data;
 
       // Fetch all candidates
       const candidatesResponse = await apiService.getAllCandidatesAdmin();
@@ -37,10 +33,10 @@ const AdminDashboard = () => {
 
       setStats({
         totalCandidates: candidates.length,
-        registeredVoters: electionData.totalVoters || 0,
+        registeredVoters: electionData.registeredVoterCount || 0,
         totalVotes: electionData.totalVotes || 0,
-        electionState: getElectionStateText(electionData.state),
-        electionName: electionData.electionName || "General Election 2025",
+        electionState: getElectionStateText(electionData.stateNumber),
+        electionName: electionData.name || "General Election 2025",
       });
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
@@ -48,7 +44,11 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const getElectionStateText = (state) => {
     const states = {

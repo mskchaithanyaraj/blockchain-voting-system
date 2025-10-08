@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
 import * as apiService from "../services/api.service";
 
 /**
@@ -7,7 +6,7 @@ import * as apiService from "../services/api.service";
  * Register voters (single/batch) and view registered voters
  */
 const ManageVoters = () => {
-  const [voters, setVoters] = useState([]);
+  const [voterCount, setVoterCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -21,20 +20,19 @@ const ManageVoters = () => {
   const [batchSubmitting, setBatchSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchVoters();
+    fetchElectionStats();
   }, []);
 
-  const fetchVoters = async () => {
+  const fetchElectionStats = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Note: You'll need to create an endpoint to get all voters
-      // For now, this is a placeholder
-      setVoters([]);
+      const response = await apiService.getElectionStats();
+      setVoterCount(response.data.data.registeredVoterCount || 0);
     } catch (err) {
-      console.error("Error fetching voters:", err);
-      setError(err.message || "Failed to fetch voters");
+      console.error("Error fetching election stats:", err);
+      setError(err.message || "Failed to fetch election statistics");
     } finally {
       setLoading(false);
     }
@@ -65,7 +63,7 @@ const ManageVoters = () => {
 
       setSuccess(`Voter ${singleVoterAddress} registered successfully!`);
       setSingleVoterAddress("");
-      await fetchVoters();
+      await fetchElectionStats();
 
       setTimeout(() => setSuccess(null), 5000);
     } catch (err) {
@@ -120,7 +118,7 @@ const ManageVoters = () => {
 
       setSuccess(`Successfully registered ${addresses.length} voters!`);
       setBatchAddresses("");
-      await fetchVoters();
+      await fetchElectionStats();
 
       setTimeout(() => setSuccess(null), 5000);
     } catch (err) {
@@ -333,10 +331,10 @@ const ManageVoters = () => {
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
-              Registered Voters ({voters.length})
+              Registered Voters ({voterCount})
             </h2>
             <button
-              onClick={fetchVoters}
+              onClick={fetchElectionStats}
               className="flex items-center text-green-600 hover:text-green-700 font-medium"
             >
               <svg
@@ -361,7 +359,7 @@ const ManageVoters = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
               <p className="text-gray-600">Loading voters...</p>
             </div>
-          ) : voters.length === 0 ? (
+          ) : voterCount === 0 ? (
             <div className="text-center py-12">
               <svg
                 className="w-16 h-16 text-gray-400 mx-auto mb-4"
@@ -384,39 +382,26 @@ const ManageVoters = () => {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Address
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Voted
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {voters.map((voter, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
-                        {voter.address}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          Registered
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {voter.hasVoted ? "Yes" : "No"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="text-center py-12">
+              <svg
+                className="w-16 h-16 text-green-400 mx-auto mb-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <p className="text-gray-600 text-lg mb-2">
+                {voterCount} voters registered
+              </p>
+              <p className="text-gray-500 text-sm">
+                Voters have been successfully registered on the blockchain
+              </p>
             </div>
           )}
         </div>

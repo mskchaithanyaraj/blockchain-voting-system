@@ -180,11 +180,37 @@ async function getCandidate(candidateId) {
  */
 async function getElectionState() {
   try {
-    const state = await contract.getElectionState();
-    const states = ["NotStarted", "Active", "Ended"];
+    const electionData = await contract.getElectionState();
 
-    console.log(`🗳️  Election State: ${states[state]}`);
-    return states[state];
+    // The contract returns: [name, state, candidateCount, registeredVoterCount, totalVotes, startTime, endTime]
+    const [
+      name,
+      state,
+      candidateCount,
+      registeredVoterCount,
+      totalVotes,
+      startTime,
+      endTime,
+    ] = electionData;
+
+    const states = ["NotStarted", "Active", "Ended"];
+    const stateString = states[Number(state)];
+
+    const formattedState = {
+      name,
+      state: stateString,
+      stateNumber: Number(state),
+      candidateCount: Number(candidateCount),
+      registeredVoterCount: Number(registeredVoterCount),
+      totalVotes: Number(totalVotes),
+      startTime: Number(startTime),
+      endTime: Number(endTime),
+    };
+
+    console.log(
+      `🗳️  Election State: ${stateString}, Voters: ${registeredVoterCount}, Candidates: ${candidateCount}`
+    );
+    return formattedState;
   } catch (error) {
     console.error("Error fetching election state:", error);
     throw new Error(`Failed to fetch election state: ${error.message}`);

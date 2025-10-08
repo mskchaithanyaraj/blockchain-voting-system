@@ -145,3 +145,21 @@ exports.getResults = async (req, res) => {
     });
   }
 };
+
+// Get election statistics
+exports.getElectionStats = async (req, res) => {
+  try {
+    const stats = await blockchainService.getElectionState();
+    return res.status(200).json({
+      success: true,
+      message: "Fetched election statistics",
+      data: stats,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: "GetElectionStatsFailed",
+      message: error.message,
+    });
+  }
+};
