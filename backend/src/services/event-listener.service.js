@@ -27,12 +27,13 @@ async function startListening() {
     console.log("========================================");
 
     // Listen for VoterRegistered events
-    contract.on("VoterRegistered", async (voterAddress, event) => {
+    contract.on("VoterRegistered", async (voterAddress, timestamp, event) => {
       try {
         console.log(`\n📝 VoterRegistered Event Detected:`);
         console.log(`   Voter Address: ${voterAddress}`);
-        console.log(`   Block Number: ${event.log.blockNumber}`);
-        console.log(`   Transaction Hash: ${event.log.transactionHash}`);
+        console.log(`   Timestamp: ${timestamp}`);
+        console.log(`   Block Number: ${event.blockNumber}`);
+        console.log(`   Transaction Hash: ${event.transactionHash}`);
 
         // Update user registration status in database
         const result = await User.findOneAndUpdate(
@@ -59,20 +60,20 @@ async function startListening() {
     // Listen for VoteCast events
     contract.on(
       "VoteCast",
-      async (voterAddress, candidateId, candidateName, event) => {
+      async (voterAddress, candidateId, timestamp, event) => {
         try {
           console.log(`\n🗳️  VoteCast Event Detected:`);
           console.log(`   Voter Address: ${voterAddress}`);
           console.log(`   Candidate ID: ${candidateId.toString()}`);
-          console.log(`   Candidate Name: ${candidateName}`);
-          console.log(`   Block Number: ${event.log.blockNumber}`);
-          console.log(`   Transaction Hash: ${event.log.transactionHash}`);
+          console.log(`   Timestamp: ${timestamp}`);
+          console.log(`   Block Number: ${event.blockNumber}`);
+          console.log(`   Transaction Hash: ${event.transactionHash}`);
 
           // Get transaction receipt for additional details
           const receipt = await provider.getTransactionReceipt(
-            event.log.transactionHash
+            event.transactionHash
           );
-          const block = await provider.getBlock(event.log.blockNumber);
+          const block = await provider.getBlock(event.blockNumber);
 
           // Find user in database
           const user = await User.findOne({
@@ -93,7 +94,7 @@ async function startListening() {
 
           // Check if vote already exists
           const existingVote = await Vote.findOne({
-            txHash: event.log.transactionHash.toLowerCase(),
+            txHash: event.transactionHash.toLowerCase(),
           });
 
           if (existingVote) {
@@ -108,8 +109,8 @@ async function startListening() {
             candidateId: Number(candidateId),
             candidateName: candidate.name,
             candidateParty: candidate.party,
-            txHash: event.log.transactionHash.toLowerCase(),
-            blockNumber: event.log.blockNumber,
+            txHash: event.transactionHash.toLowerCase(),
+            blockNumber: event.blockNumber,
             blockTimestamp: block
               ? new Date(block.timestamp * 1000)
               : new Date(),
@@ -133,12 +134,13 @@ async function startListening() {
     );
 
     // Listen for ElectionStarted events
-    contract.on("ElectionStarted", async (electionName, event) => {
+    contract.on("ElectionStarted", async (startTime, timestamp, event) => {
       try {
         console.log(`\n🚀 ElectionStarted Event Detected:`);
-        console.log(`   Election Name: ${electionName}`);
-        console.log(`   Block Number: ${event.log.blockNumber}`);
-        console.log(`   Transaction Hash: ${event.log.transactionHash}`);
+        console.log(`   Start Time: ${startTime}`);
+        console.log(`   Timestamp: ${timestamp}`);
+        console.log(`   Block Number: ${event.blockNumber}`);
+        console.log(`   Transaction Hash: ${event.transactionHash}`);
         console.log(`✅ Election has officially started!`);
       } catch (error) {
         console.error(
@@ -149,12 +151,13 @@ async function startListening() {
     });
 
     // Listen for ElectionEnded events
-    contract.on("ElectionEnded", async (electionName, event) => {
+    contract.on("ElectionEnded", async (endTime, timestamp, event) => {
       try {
         console.log(`\n🏁 ElectionEnded Event Detected:`);
-        console.log(`   Election Name: ${electionName}`);
-        console.log(`   Block Number: ${event.log.blockNumber}`);
-        console.log(`   Transaction Hash: ${event.log.transactionHash}`);
+        console.log(`   End Time: ${endTime}`);
+        console.log(`   Timestamp: ${timestamp}`);
+        console.log(`   Block Number: ${event.blockNumber}`);
+        console.log(`   Transaction Hash: ${event.transactionHash}`);
         console.log(`✅ Election has officially ended!`);
 
         // Get final results
@@ -179,8 +182,8 @@ async function startListening() {
         console.log(`   Candidate ID: ${candidateId.toString()}`);
         console.log(`   Name: ${name}`);
         console.log(`   Party: ${party}`);
-        console.log(`   Block Number: ${event.log.blockNumber}`);
-        console.log(`   Transaction Hash: ${event.log.transactionHash}`);
+        console.log(`   Block Number: ${event.blockNumber}`);
+        console.log(`   Transaction Hash: ${event.transactionHash}`);
         console.log(`✅ New candidate added to election`);
       } catch (error) {
         console.error("❌ Error handling CandidateAdded event:", error.message);
@@ -193,8 +196,8 @@ async function startListening() {
         console.log(`\n🔄 AdminChanged Event Detected:`);
         console.log(`   Old Admin: ${oldAdmin}`);
         console.log(`   New Admin: ${newAdmin}`);
-        console.log(`   Block Number: ${event.log.blockNumber}`);
-        console.log(`   Transaction Hash: ${event.log.transactionHash}`);
+        console.log(`   Block Number: ${event.blockNumber}`);
+        console.log(`   Transaction Hash: ${event.transactionHash}`);
         console.log(`✅ Admin privileges transferred`);
       } catch (error) {
         console.error("❌ Error handling AdminChanged event:", error.message);

@@ -43,7 +43,10 @@ const LoginForm = () => {
 
     try {
       setLoading(true);
-      await login(formData.email, formData.password);
+      await login({
+        email: formData.email,
+        password: formData.password,
+      });
 
       // Redirect based on role
       if (isAdmin) {
