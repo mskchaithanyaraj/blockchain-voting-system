@@ -32,7 +32,13 @@ const ViewResults = () => {
       // Only fetch results if election has ended
       if (state === 2) {
         const resultsResponse = await apiService.getResults();
-        const resultsData = resultsResponse.data.data || [];
+        const resultsData = resultsResponse.data.data.results || []; // Access nested results array
+        const apiTotalVotes = resultsResponse.data.data.totalVotes || 0;
+
+        // Use API total votes if available (more accurate than election state total)
+        if (apiTotalVotes > 0) {
+          setTotalVotes(apiTotalVotes);
+        }
 
         // Sort by vote count descending
         const sortedResults = [...resultsData].sort(

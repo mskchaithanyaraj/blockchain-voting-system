@@ -243,18 +243,34 @@ async function getVoter(voterAddress) {
  */
 async function getResults() {
   try {
-    const candidates = await contract.getResults();
+    const resultsData = await contract.getResults();
 
-    const formattedResults = candidates.map((candidate) => ({
-      id: Number(candidate.id),
-      name: candidate.name,
-      party: candidate.party,
-      voteCount: Number(candidate.voteCount),
-    }));
+    // Contract returns: (candidateIds[], candidateNames[], voteCounts[], totalVotesCast)
+    const [candidateIds, candidateNames, voteCounts, totalVotesCast] =
+      resultsData;
+
+    // Format into array of candidate objects
+    const formattedResults = [];
+    for (let i = 0; i < candidateIds.length; i++) {
+      // Get candidate party from candidates mapping
+      const candidateDetails = await contract.getCandidate(
+        Number(candidateIds[i])
+      );
+
+      formattedResults.push({
+        id: Number(candidateIds[i]),
+        name: candidateNames[i],
+        party: candidateDetails[2], // party is at index 2 in getCandidate return
+        voteCount: Number(voteCounts[i]),
+      });
+    }
 
     console.log(
-      `📊 Fetched election results: ${formattedResults.length} candidates`
+      `📊 Fetched election results: ${
+        formattedResults.length
+      } candidates, ${Number(totalVotesCast)} total votes`
     );
+    console.log("Results data:", formattedResults);
     return formattedResults;
   } catch (error) {
     console.error("Error fetching results:", error);

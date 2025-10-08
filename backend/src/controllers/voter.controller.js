@@ -209,22 +209,20 @@ exports.getCandidates = async (req, res) => {
  */
 exports.getElectionState = async (req, res) => {
   try {
-    const state = await blockchainService.getElectionState();
-    const totalCandidates = await blockchainService.getCandidateCount();
-    const totalVotes = await blockchainService.getTotalVotes();
-    const electionName = await blockchainService.getElectionName();
+    const electionStateData = await blockchainService.getElectionState();
 
     return res.status(200).json({
       success: true,
       message: "Election state retrieved successfully",
       data: {
-        state,
-        electionName,
-        totalCandidates,
-        totalVotes,
-        isActive: state === "Active",
-        hasEnded: state === "Ended",
-        notStarted: state === "NotStarted",
+        state: electionStateData.stateNumber, // Use numeric state for frontend compatibility
+        stateString: electionStateData.state, // Also provide string representation
+        electionName: electionStateData.name,
+        totalCandidates: electionStateData.candidateCount,
+        totalVotes: electionStateData.totalVotes,
+        isActive: electionStateData.state === "Active",
+        hasEnded: electionStateData.state === "Ended",
+        notStarted: electionStateData.state === "NotStarted",
       },
     });
   } catch (error) {
@@ -244,8 +242,8 @@ exports.getElectionState = async (req, res) => {
 exports.getResults = async (req, res) => {
   try {
     // Check if election has ended
-    const state = await blockchainService.getElectionState();
-    if (state !== "Ended") {
+    const electionStateData = await blockchainService.getElectionState();
+    if (electionStateData.state !== "Ended") {
       return res.status(403).json({
         success: false,
         error: "ElectionNotEnded",
@@ -277,7 +275,7 @@ exports.getResults = async (req, res) => {
       data: {
         results: resultsWithPercentage,
         totalVotes,
-        electionState: state,
+        electionState: electionStateData.state,
       },
     });
   } catch (error) {
