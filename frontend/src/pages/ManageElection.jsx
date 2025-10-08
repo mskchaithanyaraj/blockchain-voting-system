@@ -29,12 +29,24 @@ const ManageElection = () => {
       setLoading(true);
       setError(null);
 
-      const stateResponse = await apiService.getElectionState();
-      const stateData = stateResponse.data.data;
-      setElectionState(stateData);
+      // Use admin election stats endpoint
+      const statsResponse = await apiService.getElectionStats();
+      const statsData = statsResponse.data.data;
+
+      // Also fetch candidates to get accurate count
+      const candidatesResponse = await apiService.getAllCandidatesAdmin();
+      const candidates = candidatesResponse.data.data;
+
+      setElectionState({
+        state: statsData.stateNumber,
+        electionName: statsData.name,
+        totalCandidates: candidates.length,
+        totalVotes: statsData.totalVotes,
+        totalVoters: statsData.registeredVoterCount,
+      });
 
       // If election has ended, fetch results
-      if (stateData.state === 2) {
+      if (statsData.stateNumber === 2) {
         try {
           const resultsResponse = await apiService.getResultsAdmin();
           setResults(resultsResponse.data.data || []);
