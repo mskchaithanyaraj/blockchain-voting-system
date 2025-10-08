@@ -24,26 +24,37 @@ const Home = () => {
         <div className="text-center animate-fade-in">
           <div className="mb-8 flex justify-center">
             <div
-              className="h-24 w-24 rounded-full flex items-center justify-center shadow-heavy transition-all duration-300 hover:scale-110"
-              style={{
-                background: isDark
-                  ? "linear-gradient(135deg, var(--clr-primary-a30), var(--clr-primary-a20))"
-                  : "linear-gradient(135deg, var(--clr-primary-a0), var(--clr-primary-a10))",
-              }}
+              className={`
+              w-[17rem] h-[17rem] lg:w-[26rem] lg:h-[26rem] 
+              rounded-full flex items-center justify-center 
+              shadow-heavy transition-all duration-500 hover:scale-105
+              backdrop-blur-sm
+              ${isDark ? "bg-black" : "bg-white/90"}
+            `}
             >
-              <svg
-                className="w-16 h-16"
-                style={{ color: "var(--clr-surface-a0)" }}
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                <path
-                  fillRule="evenodd"
-                  d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
-                  clipRule="evenodd"
+              {/* Logo with crossfade transition */}
+              <div className="relative w-48 h-48 sm:w-60 sm:h-60 lg:w-72 lg:h-72">
+                {/* Dark mode logo */}
+                <img
+                  src="/logo/ballotXlogo.png"
+                  alt="BallotX Logo"
+                  className={`absolute inset-0 w-full h-full object-contain transition-all duration-500 ease-in-out ${
+                    isDark
+                      ? "opacity-100 scale-100 blur-0"
+                      : "opacity-0 scale-95 blur-sm"
+                  }`}
                 />
-              </svg>
+                {/* Light mode logo */}
+                <img
+                  src="/logo/lightmode/ballotXlightmodelogo.jpg"
+                  alt="BallotX Logo"
+                  className={`absolute inset-0 w-full h-full object-contain transition-all duration-500 ease-in-out ${
+                    !isDark
+                      ? "opacity-100 scale-100 blur-0"
+                      : "opacity-0 scale-95 blur-sm"
+                  }`}
+                />
+              </div>
             </div>
           </div>
 
