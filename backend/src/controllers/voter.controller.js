@@ -1,5 +1,7 @@
 const blockchainService = require("../services/blockchain.service");
-const { User, Vote } = require("../models");
+const User = require("../models/User.model");
+const Vote = require("../models/Vote.model");
+const { ethers } = require("ethers");
 
 /**
  * Voter Controller
@@ -116,7 +118,8 @@ exports.castVote = async (req, res) => {
  */
 exports.getVoterStatus = async (req, res) => {
   try {
-    const voterAddress = req.user.ethAddress;
+    // Normalize address to checksum format
+    const voterAddress = ethers.getAddress(req.user.ethAddress);
 
     // Get status from database
     const user = await User.findById(req.user.id);
