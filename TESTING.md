@@ -178,10 +178,10 @@ Follow this complete workflow:
 1. Open http://localhost:5173
 2. Click "Register"
 3. Fill form:
-   - Name: Admin Test
-   - Email: admin@test.com
+   - Name: E-Voting Election Admin
+   - Email: admin@election.com
    - Address: 0x446995e992d953A6C56e8bABFBe3C5E21AcfF927 (from Ganache)
-   - Password: Test123!
+   - Password: chaithu2005
    - Role: Administrator
 4. Click "Create Account"
 5. Should auto-login and redirect to /admin/dashboard

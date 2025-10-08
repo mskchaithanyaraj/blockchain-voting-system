@@ -127,15 +127,21 @@ function getContractAddress() {
  */
 async function getAllCandidates() {
   try {
-    const candidates = await contract.getAllCandidates();
+    const candidatesData = await contract.getAllCandidates();
 
-    // Format candidates data (ethers v6 returns structured data)
-    const formattedCandidates = candidates.map((candidate) => ({
-      id: Number(candidate.id),
-      name: candidate.name,
-      party: candidate.party,
-      voteCount: Number(candidate.voteCount),
-    }));
+    // The contract returns 4 arrays: [ids, names, parties, voteCounts]
+    const [ids, names, parties, voteCounts] = candidatesData;
+
+    // Format candidates data by combining the arrays
+    const formattedCandidates = [];
+    for (let i = 0; i < ids.length; i++) {
+      formattedCandidates.push({
+        id: Number(ids[i]),
+        name: names[i],
+        party: parties[i],
+        voteCount: Number(voteCounts[i]),
+      });
+    }
 
     console.log(
       `📋 Fetched ${formattedCandidates.length} candidates from blockchain`
