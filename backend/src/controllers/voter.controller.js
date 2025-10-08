@@ -150,12 +150,12 @@ exports.getVoterStatus = async (req, res) => {
       success: true,
       message: "Voter status retrieved successfully",
       data: {
-        voterAddress: user.ethAddress,
+        voterAddress: ethers.getAddress(user.ethAddress),
         name: user.name,
         email: user.email,
-        isRegistered: user.isRegistered,
-        hasVoted: user.hasVoted,
-        votedCandidateId: user.votedCandidateId,
+        isRegistered: blockchainStatus.isRegistered, // Use blockchain as source of truth
+        hasVoted: blockchainStatus.hasVoted, // Use blockchain as source of truth
+        votedCandidateId: blockchainStatus.votedCandidateId, // Use blockchain as source of truth
         votedCandidate: votedCandidate
           ? {
               id: votedCandidate.id,
