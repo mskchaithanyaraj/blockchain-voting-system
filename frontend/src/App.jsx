@@ -5,6 +5,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 
 // Components
 import Navbar from "./components/Navbar";
@@ -26,87 +27,95 @@ import ViewResults from "./pages/ViewResults";
 
 /**
  * Main App Component
- * Sets up routing and authentication context for the entire application
+ * Sets up routing, theme system, and authentication context for the entire application
  */
 const App = () => {
   return (
-    <Router>
-      <AuthProvider>
-        <div className="min-h-screen bg-gray-50">
-          <Navbar />
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<LoginForm />} />
-            <Route path="/register" element={<RegisterForm />} />
+    <ThemeProvider>
+      <Router>
+        <AuthProvider>
+          <div
+            className="min-h-screen transition-theme"
+            style={{
+              backgroundColor: "var(--clr-surface-a0)",
+              color: "var(--clr-text-primary)",
+            }}
+          >
+            <Navbar />
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<LoginForm />} />
+              <Route path="/register" element={<RegisterForm />} />
 
-            {/* Admin Routes */}
-            <Route
-              path="/admin/dashboard"
-              element={
-                <AdminRoute>
-                  <AdminDashboard />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/admin/candidates"
-              element={
-                <AdminRoute>
-                  <ManageCandidates />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/admin/voters"
-              element={
-                <AdminRoute>
-                  <ManageVoters />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/admin/election"
-              element={
-                <AdminRoute>
-                  <ManageElection />
-                </AdminRoute>
-              }
-            />
+              {/* Admin Routes */}
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/candidates"
+                element={
+                  <AdminRoute>
+                    <ManageCandidates />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/voters"
+                element={
+                  <AdminRoute>
+                    <ManageVoters />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/election"
+                element={
+                  <AdminRoute>
+                    <ManageElection />
+                  </AdminRoute>
+                }
+              />
 
-            {/* Voter Routes */}
-            <Route
-              path="/voter/dashboard"
-              element={
-                <VoterRoute>
-                  <VoterDashboard />
-                </VoterRoute>
-              }
-            />
-            <Route
-              path="/voter/vote"
-              element={
-                <VoterRoute>
-                  <CastVote />
-                </VoterRoute>
-              }
-            />
-            <Route
-              path="/voter/results"
-              element={
-                <VoterRoute>
-                  <ViewResults />
-                </VoterRoute>
-              }
-            />
+              {/* Voter Routes */}
+              <Route
+                path="/voter/dashboard"
+                element={
+                  <VoterRoute>
+                    <VoterDashboard />
+                  </VoterRoute>
+                }
+              />
+              <Route
+                path="/voter/vote"
+                element={
+                  <VoterRoute>
+                    <CastVote />
+                  </VoterRoute>
+                }
+              />
+              <Route
+                path="/voter/results"
+                element={
+                  <VoterRoute>
+                    <ViewResults />
+                  </VoterRoute>
+                }
+              />
 
-            {/* 404 Not Found */}
-            <Route path="/404" element={<NotFound />} />
-            <Route path="*" element={<Navigate to="/404" replace />} />
-          </Routes>
-        </div>
-      </AuthProvider>
-    </Router>
+              {/* 404 Not Found */}
+              <Route path="/404" element={<NotFound />} />
+              <Route path="*" element={<Navigate to="/404" replace />} />
+            </Routes>
+          </div>
+        </AuthProvider>
+      </Router>
+    </ThemeProvider>
   );
 };
 
@@ -115,18 +124,38 @@ const App = () => {
  */
 const NotFound = () => {
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <div className="text-center">
-        <h1 className="text-9xl font-bold text-gray-300">404</h1>
-        <h2 className="text-4xl font-bold text-gray-900 mb-4">
+    <div
+      className="min-h-screen flex items-center justify-center px-4 transition-theme"
+      style={{
+        backgroundColor: "var(--clr-surface-a10)",
+      }}
+    >
+      <div className="text-center animate-fade-in">
+        <h1
+          className="text-display-large"
+          style={{ color: "var(--clr-surface-a40)" }}
+        >
+          404
+        </h1>
+        <h2
+          className="text-headline-large mb-4"
+          style={{ color: "var(--clr-text-primary)" }}
+        >
           Page Not Found
         </h2>
-        <p className="text-gray-600 mb-8">
+        <p
+          className="text-body-large mb-8"
+          style={{ color: "var(--clr-text-secondary)" }}
+        >
           The page you're looking for doesn't exist or has been moved.
         </p>
         <a
           href="/"
-          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition duration-200 font-semibold"
+          className="inline-block px-6 py-3 rounded-lg font-semibold transition-theme shadow-medium hover:shadow-heavy"
+          style={{
+            backgroundColor: "var(--clr-primary-a0)",
+            color: "var(--clr-text-inverse)",
+          }}
         >
           Go Home
         </a>

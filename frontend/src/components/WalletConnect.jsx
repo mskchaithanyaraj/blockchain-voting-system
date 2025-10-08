@@ -168,7 +168,11 @@ const WalletConnect = ({ onConnect, onDisconnect, compact = false }) => {
           href="https://metamask.io/download/"
           target="_blank"
           rel="noopener noreferrer"
-          className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-200 text-sm font-semibold"
+          className="px-4 py-2 rounded-lg transition-all duration-200 text-caption font-medium hover:scale-105"
+          style={{
+            background: "var(--clr-gradient-warning)",
+            color: "var(--clr-text-on-accent)",
+          }}
         >
           Install MetaMask
         </a>
@@ -182,19 +186,34 @@ const WalletConnect = ({ onConnect, onDisconnect, compact = false }) => {
             <button
               onClick={handleSwitchNetwork}
               disabled={loading}
-              className="px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition duration-200 text-sm font-semibold"
+              className="px-3 py-2 rounded-lg transition-all duration-200 text-caption font-medium disabled:opacity-50 hover:scale-105"
+              style={{
+                background: "var(--clr-gradient-warning)",
+                color: "var(--clr-text-on-accent)",
+              }}
             >
               Switch Network
             </button>
           )}
           <div className="flex items-center space-x-2">
-            <div className="px-3 py-2 bg-green-100 text-green-800 rounded-lg text-sm font-mono">
+            <div
+              className="px-3 py-2 rounded-lg text-caption font-mono backdrop-blur-sm border"
+              style={{
+                backgroundColor: "var(--clr-success-surface)",
+                borderColor: "var(--clr-success-border)",
+                color: "var(--clr-success-text)",
+              }}
+            >
               {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
             </div>
             <button
               onClick={handleSwitchAccount}
               disabled={loading}
-              className="px-2 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200 text-sm font-semibold"
+              className="px-2 py-2 rounded-lg transition-all duration-200 text-caption font-medium disabled:opacity-50 hover:scale-105"
+              style={{
+                background: "var(--clr-gradient-primary)",
+                color: "var(--clr-text-on-accent)",
+              }}
               title="Switch Account"
             >
               ↻
@@ -208,7 +227,11 @@ const WalletConnect = ({ onConnect, onDisconnect, compact = false }) => {
       <button
         onClick={handleConnect}
         disabled={loading}
-        className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-200 text-sm font-semibold disabled:opacity-50"
+        className="px-4 py-2 rounded-lg transition-all duration-200 text-caption font-medium disabled:opacity-50 hover:scale-105"
+        style={{
+          background: "var(--clr-gradient-warning)",
+          color: "var(--clr-text-on-accent)",
+        }}
       >
         {loading ? "Connecting..." : "Connect Wallet"}
       </button>
@@ -217,23 +240,51 @@ const WalletConnect = ({ onConnect, onDisconnect, compact = false }) => {
 
   // Full version (for pages)
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-xl font-bold text-gray-900 mb-4">
+    <div
+      className="rounded-xl p-6 backdrop-blur-sm border transition-all duration-300"
+      style={{
+        backgroundColor: "var(--clr-surface-primary)",
+        borderColor: "var(--clr-surface-a10)",
+        boxShadow: "var(--shadow-md)",
+      }}
+    >
+      <h3
+        className="text-heading-3 font-medium mb-4 transition-colors duration-300"
+        style={{ color: "var(--clr-text-primary)" }}
+      >
         Wallet Connection
       </h3>
 
       {error && (
-        <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3">
-          <p className="text-sm text-red-800">{error}</p>
+        <div
+          className="mb-4 rounded-lg p-3 border backdrop-blur-sm"
+          style={{
+            backgroundColor: "var(--clr-error-surface)",
+            borderColor: "var(--clr-error-border)",
+          }}
+        >
+          <p
+            className="text-caption transition-colors duration-300"
+            style={{ color: "var(--clr-error-text)" }}
+          >
+            {error}
+          </p>
         </div>
       )}
 
       {!isMetaMaskInstalled ? (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div
+          className="rounded-lg p-4 border backdrop-blur-sm"
+          style={{
+            backgroundColor: "var(--clr-warning-surface)",
+            borderColor: "var(--clr-warning-border)",
+          }}
+        >
           <div className="flex items-start">
             <div className="flex-shrink-0">
               <svg
-                className="h-6 w-6 text-yellow-400"
+                className="h-6 w-6 transition-colors duration-300"
+                style={{ color: "var(--clr-warning-primary)" }}
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -245,14 +296,21 @@ const WalletConnect = ({ onConnect, onDisconnect, compact = false }) => {
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-yellow-800 mb-2">
+              <p
+                className="text-caption mb-2 transition-colors duration-300"
+                style={{ color: "var(--clr-warning-text)" }}
+              >
                 MetaMask is not installed. Please install MetaMask to continue.
               </p>
               <a
                 href="https://metamask.io/download/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition duration-200 font-semibold text-sm"
+                className="inline-block px-4 py-2 rounded-lg transition-all duration-200 font-medium text-caption hover:scale-105"
+                style={{
+                  background: "var(--clr-gradient-warning)",
+                  color: "var(--clr-text-on-accent)",
+                }}
               >
                 Download MetaMask
               </a>
@@ -261,11 +319,21 @@ const WalletConnect = ({ onConnect, onDisconnect, compact = false }) => {
         </div>
       ) : isConnected ? (
         <div>
-          <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+          <div
+            className="flex items-center justify-between rounded-lg p-4 mb-4 border backdrop-blur-sm"
+            style={{
+              backgroundColor: "var(--clr-success-surface)",
+              borderColor: "var(--clr-success-border)",
+            }}
+          >
             <div className="flex items-center space-x-3">
-              <div className="bg-green-100 rounded-full p-2">
+              <div
+                className="rounded-full p-2"
+                style={{ backgroundColor: "var(--clr-success-primary)" }}
+              >
                 <svg
-                  className="w-6 h-6 text-green-600"
+                  className="w-6 h-6"
+                  style={{ color: "var(--clr-text-on-accent)" }}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -279,14 +347,28 @@ const WalletConnect = ({ onConnect, onDisconnect, compact = false }) => {
                 </svg>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Connected Address</p>
-                <p className="font-mono text-sm font-semibold text-gray-900">
+                <p
+                  className="text-caption-sm transition-colors duration-300"
+                  style={{ color: "var(--clr-text-muted)" }}
+                >
+                  Connected Address
+                </p>
+                <p
+                  className="font-mono text-caption font-medium transition-colors duration-300"
+                  style={{ color: "var(--clr-success-text)" }}
+                >
                   {walletAddress.slice(0, 10)}...{walletAddress.slice(-8)}
                 </p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+              <span
+                className="px-3 py-1 rounded-full text-caption-sm font-medium"
+                style={{
+                  backgroundColor: "var(--clr-success-primary)",
+                  color: "var(--clr-text-on-accent)",
+                }}
+              >
                 Connected
               </span>
             </div>
@@ -297,29 +379,54 @@ const WalletConnect = ({ onConnect, onDisconnect, compact = false }) => {
             <button
               onClick={handleSwitchAccount}
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 font-semibold text-sm disabled:opacity-50"
+              className="flex-1 px-4 py-2 rounded-lg transition-all duration-200 font-medium text-caption disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98]"
+              style={{
+                background: "var(--clr-gradient-primary)",
+                color: "var(--clr-text-on-accent)",
+                boxShadow: "var(--shadow-sm)",
+              }}
             >
               {loading ? "Switching..." : "Switch Account"}
             </button>
             <button
               onClick={handleDisconnect}
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-200 font-semibold text-sm disabled:opacity-50"
+              className="flex-1 px-4 py-2 rounded-lg transition-all duration-200 font-medium text-caption disabled:opacity-50 border hover:scale-[1.02] active:scale-[0.98]"
+              style={{
+                backgroundColor: "var(--clr-surface-secondary)",
+                borderColor: "var(--clr-surface-a20)",
+                color: "var(--clr-text-secondary)",
+                boxShadow: "var(--shadow-sm)",
+              }}
             >
               Disconnect
             </button>
           </div>
 
           {!isCorrectNetwork && (
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <p className="text-sm text-orange-800 mb-3">
+            <div
+              className="rounded-lg p-4 border backdrop-blur-sm"
+              style={{
+                backgroundColor: "var(--clr-warning-surface)",
+                borderColor: "var(--clr-warning-border)",
+              }}
+            >
+              <p
+                className="text-caption mb-3 transition-colors duration-300"
+                style={{ color: "var(--clr-warning-text)" }}
+              >
                 You are not connected to the Ganache network. Please switch to
                 Chain ID 1337.
               </p>
               <button
                 onClick={handleSwitchNetwork}
                 disabled={loading}
-                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition duration-200 font-semibold text-sm disabled:opacity-50"
+                className="px-4 py-2 rounded-lg transition-all duration-200 font-medium text-caption disabled:opacity-50 hover:scale-105"
+                style={{
+                  background: "var(--clr-gradient-warning)",
+                  color: "var(--clr-text-on-accent)",
+                  boxShadow: "var(--shadow-sm)",
+                }}
               >
                 {loading ? "Switching..." : "Switch to Ganache"}
               </button>
@@ -330,7 +437,12 @@ const WalletConnect = ({ onConnect, onDisconnect, compact = false }) => {
         <button
           onClick={handleConnect}
           disabled={loading}
-          className="w-full bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition duration-200 font-semibold disabled:opacity-50"
+          className="w-full px-6 py-3 rounded-lg transition-all duration-200 font-medium disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98]"
+          style={{
+            background: "var(--clr-gradient-warning)",
+            color: "var(--clr-text-on-accent)",
+            boxShadow: "var(--shadow-md)",
+          }}
         >
           {loading ? "Connecting..." : "Connect MetaMask"}
         </button>

@@ -69,13 +69,24 @@ const LoginForm = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div
+      className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300"
+      style={{ backgroundColor: "var(--clr-background-primary)" }}
+    >
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+          <div
+            className="mx-auto h-16 w-16 rounded-full flex items-center justify-center backdrop-blur-sm border shadow-lg transition-all duration-300"
+            style={{
+              background: "var(--clr-gradient-primary)",
+              borderColor: "var(--clr-surface-a10)",
+              boxShadow: "var(--shadow-lg)",
+            }}
+          >
             <svg
-              className="w-10 h-10 text-white"
+              className="w-10 h-10"
+              style={{ color: "var(--clr-text-on-accent)" }}
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -87,14 +98,21 @@ const LoginForm = () => {
               />
             </svg>
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+          <h2
+            className="mt-6 text-heading-2 font-medium transition-colors duration-300"
+            style={{ color: "var(--clr-text-primary)" }}
+          >
             Sign in to your account
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p
+            className="mt-2 text-body-2 transition-colors duration-300"
+            style={{ color: "var(--clr-text-secondary)" }}
+          >
             Or{" "}
             <Link
               to="/register"
-              className="font-medium text-blue-600 hover:text-blue-500"
+              className="font-medium transition-colors duration-200 hover:underline"
+              style={{ color: "var(--clr-accent-primary)" }}
             >
               create a new account
             </Link>
@@ -102,14 +120,22 @@ const LoginForm = () => {
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-lg shadow-xl p-8">
+        <div
+          className="rounded-xl p-8 backdrop-blur-sm border transition-all duration-300"
+          style={{
+            backgroundColor: "var(--clr-surface-primary)",
+            borderColor: "var(--clr-surface-a10)",
+            boxShadow: "var(--shadow-xl)",
+          }}
+        >
           <ErrorMessage message={error} onDismiss={() => setError(null)} />
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-caption font-medium mb-2 transition-colors duration-300"
+                style={{ color: "var(--clr-text-secondary)" }}
               >
                 Email address
               </label>
@@ -121,7 +147,15 @@ const LoginForm = () => {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 rounded-lg border transition-all duration-200 placeholder-opacity-60 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                style={{
+                  backgroundColor: "var(--clr-surface-secondary)",
+                  borderColor: "var(--clr-surface-a20)",
+                  color: "var(--clr-text-primary)",
+                  "--placeholder-color": "var(--clr-text-muted)",
+                  focusRingColor: "var(--clr-accent-primary)",
+                  focusRingOffsetColor: "var(--clr-surface-primary)",
+                }}
                 placeholder="Enter your email"
               />
             </div>
@@ -129,7 +163,8 @@ const LoginForm = () => {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-caption font-medium mb-2 transition-colors duration-300"
+                style={{ color: "var(--clr-text-secondary)" }}
               >
                 Password
               </label>
@@ -141,7 +176,15 @@ const LoginForm = () => {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 rounded-lg border transition-all duration-200 placeholder-opacity-60 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                style={{
+                  backgroundColor: "var(--clr-surface-secondary)",
+                  borderColor: "var(--clr-surface-a20)",
+                  color: "var(--clr-text-primary)",
+                  "--placeholder-color": "var(--clr-text-muted)",
+                  focusRingColor: "var(--clr-accent-primary)",
+                  focusRingOffsetColor: "var(--clr-surface-primary)",
+                }}
                 placeholder="Enter your password"
               />
             </div>
@@ -150,7 +193,14 @@ const LoginForm = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200"
+                className="w-full flex justify-center py-3 px-4 rounded-lg text-body-1 font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 hover:scale-[1.02] active:scale-[0.98]"
+                style={{
+                  background: "var(--clr-gradient-primary)",
+                  color: "var(--clr-text-on-accent)",
+                  boxShadow: "var(--shadow-md)",
+                  focusRingColor: "var(--clr-accent-primary)",
+                  focusRingOffsetColor: "var(--clr-surface-primary)",
+                }}
               >
                 {loading ? "Signing in..." : "Sign in"}
               </button>
@@ -160,10 +210,19 @@ const LoginForm = () => {
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div
+                  className="w-full border-t"
+                  style={{ borderColor: "var(--clr-surface-a10)" }}
+                />
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
+              <div className="relative flex justify-center text-caption">
+                <span
+                  className="px-2"
+                  style={{
+                    backgroundColor: "var(--clr-surface-primary)",
+                    color: "var(--clr-text-muted)",
+                  }}
+                >
                   Secure blockchain voting system
                 </span>
               </div>

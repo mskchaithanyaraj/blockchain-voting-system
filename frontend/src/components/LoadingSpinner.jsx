@@ -14,15 +14,26 @@ const LoadingSpinner = ({ size = "medium", text = "", centered = true }) => {
   const content = (
     <div className="text-center">
       <div
-        className={`animate-spin rounded-full border-b-2 border-blue-600 ${spinnerSize} mx-auto`}
+        className={`animate-spin rounded-full border-2 border-t-transparent ${spinnerSize} mx-auto transition-colors duration-300`}
+        style={{ borderColor: "var(--clr-accent-primary)" }}
       ></div>
-      {text && <p className="mt-4 text-gray-600">{text}</p>}
+      {text && (
+        <p
+          className="mt-4 text-body-2 transition-colors duration-300"
+          style={{ color: "var(--clr-text-secondary)" }}
+        >
+          {text}
+        </p>
+      )}
     </div>
   );
 
   if (centered) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div
+        className="flex items-center justify-center min-h-screen transition-colors duration-300"
+        style={{ backgroundColor: "var(--clr-background-primary)" }}
+      >
         {content}
       </div>
     );

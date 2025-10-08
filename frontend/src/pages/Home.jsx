@@ -1,22 +1,39 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 
 /**
  * Home/Landing Page Component
- * Public page displaying election information and links to login/register
+ * Modern landing page with theme support and updated typography
  */
 const Home = () => {
   const { isAuthenticated, isAdmin, isVoter } = useAuth();
+  const { isDark } = useTheme();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div
+      className="min-h-screen transition-theme"
+      style={{
+        background: isDark
+          ? "linear-gradient(135deg, var(--clr-surface-a0) 0%, var(--clr-surface-a10) 50%, var(--clr-surface-a20) 100%)"
+          : "linear-gradient(135deg, var(--clr-surface-a0) 0%, var(--clr-surface-tonal-a10) 50%, var(--clr-surface-tonal-a20) 100%)",
+      }}
+    >
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center">
+        <div className="text-center animate-fade-in">
           <div className="mb-8 flex justify-center">
-            <div className="h-24 w-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-2xl">
+            <div
+              className="h-24 w-24 rounded-full flex items-center justify-center shadow-heavy transition-all duration-300 hover:scale-110"
+              style={{
+                background: isDark
+                  ? "linear-gradient(135deg, var(--clr-primary-a30), var(--clr-primary-a20))"
+                  : "linear-gradient(135deg, var(--clr-primary-a0), var(--clr-primary-a10))",
+              }}
+            >
               <svg
-                className="w-16 h-16 text-white"
+                className="w-16 h-16"
+                style={{ color: "var(--clr-surface-a0)" }}
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -29,10 +46,18 @@ const Home = () => {
               </svg>
             </div>
           </div>
-          <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 mb-6">
-            Blockchain Voting System
+
+          <h1
+            className="text-display-medium md:text-display-large mb-6 transition-colors duration-300"
+            style={{ color: "var(--clr-text-primary)" }}
+          >
+            <span className="font-brand">BallotX</span> Voting System
           </h1>
-          <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
+
+          <p
+            className="text-body-large md:text-title-large mb-8 max-w-3xl mx-auto transition-colors duration-300"
+            style={{ color: "var(--clr-text-secondary)" }}
+          >
             Secure, transparent, and tamper-proof elections powered by
             blockchain technology
           </p>
@@ -42,13 +67,35 @@ const Home = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/register"
-                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition duration-200 font-bold text-lg shadow-xl"
+                className={`
+                  px-8 py-4 rounded-lg font-semibold text-body-large transition-all duration-300
+                  shadow-medium hover:shadow-heavy hover:scale-105 focus-ring
+                `}
+                style={{
+                  backgroundColor: isDark
+                    ? "var(--clr-primary-a20)"
+                    : "var(--clr-primary-a0)",
+                  color: "var(--clr-surface-a0)",
+                }}
               >
                 Get Started
               </Link>
               <Link
                 to="/login"
-                className="px-8 py-4 bg-white text-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition duration-200 font-bold text-lg shadow-xl"
+                className={`
+                  px-8 py-4 rounded-lg font-semibold text-body-large transition-all duration-300
+                  border-2 shadow-medium hover:shadow-heavy hover:scale-105 focus-ring
+                  ${isDark ? "hover:bg-surface-a20" : "hover:bg-surface-a20"}
+                `}
+                style={{
+                  borderColor: isDark
+                    ? "var(--clr-primary-a20)"
+                    : "var(--clr-primary-a0)",
+                  color: isDark
+                    ? "var(--clr-primary-a20)"
+                    : "var(--clr-primary-a0)",
+                  backgroundColor: "transparent",
+                }}
               >
                 Sign In
               </Link>
@@ -58,7 +105,16 @@ const Home = () => {
               {isAdmin && (
                 <Link
                   to="/admin/dashboard"
-                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition duration-200 font-bold text-lg shadow-xl"
+                  className={`
+                    px-8 py-4 rounded-lg font-semibold text-body-large transition-all duration-300
+                    shadow-medium hover:shadow-heavy hover:scale-105 focus-ring
+                  `}
+                  style={{
+                    backgroundColor: isDark
+                      ? "var(--clr-primary-a20)"
+                      : "var(--clr-primary-a0)",
+                    color: "var(--clr-surface-a0)",
+                  }}
                 >
                   Go to Admin Dashboard
                 </Link>
@@ -66,7 +122,16 @@ const Home = () => {
               {isVoter && (
                 <Link
                   to="/voter/dashboard"
-                  className="px-8 py-4 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg hover:from-green-700 hover:to-teal-700 transition duration-200 font-bold text-lg shadow-xl"
+                  className={`
+                    px-8 py-4 rounded-lg font-semibold text-body-large transition-all duration-300
+                    shadow-medium hover:shadow-heavy hover:scale-105 focus-ring
+                  `}
+                  style={{
+                    backgroundColor: isDark
+                      ? "var(--clr-success-a10)"
+                      : "var(--clr-success-a0)",
+                    color: "var(--clr-surface-a0)",
+                  }}
                 >
                   Go to Voter Dashboard
                 </Link>
@@ -78,15 +143,35 @@ const Home = () => {
 
       {/* Features Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
-          Why Choose Blockchain Voting?
+        <h2
+          className="text-headline-large text-center mb-12 transition-colors duration-300"
+          style={{ color: "var(--clr-text-primary)" }}
+        >
+          Why Choose <span className="font-brand">BallotX</span>?
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Feature 1 */}
-          <div className="bg-white rounded-lg shadow-xl p-8 hover:shadow-2xl transition duration-300">
-            <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+          <div
+            className="rounded-lg p-8 transition-all duration-300 hover:scale-105 shadow-medium hover:shadow-heavy"
+            style={{
+              backgroundColor: isDark
+                ? "var(--clr-surface-a10)"
+                : "var(--clr-surface-a0)",
+            }}
+          >
+            <div
+              className="rounded-full w-16 h-16 flex items-center justify-center mb-6 transition-colors duration-300"
+              style={{
+                backgroundColor: isDark
+                  ? "var(--clr-primary-a30)"
+                  : "var(--clr-primary-a50)",
+                color: isDark
+                  ? "var(--clr-surface-a0)"
+                  : "var(--clr-primary-a0)",
+              }}
+            >
               <svg
-                className="w-8 h-8 text-blue-600"
+                className="w-8 h-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -99,18 +184,41 @@ const Home = () => {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Secure</h3>
-            <p className="text-gray-600">
+            <h3
+              className="text-title-large mb-3 transition-colors duration-300"
+              style={{ color: "var(--clr-text-primary)" }}
+            >
+              Secure
+            </h3>
+            <p
+              className="text-body-medium transition-colors duration-300"
+              style={{ color: "var(--clr-text-secondary)" }}
+            >
               Your vote is encrypted and stored on the blockchain, making it
               impossible to tamper with or forge.
             </p>
           </div>
 
           {/* Feature 2 */}
-          <div className="bg-white rounded-lg shadow-xl p-8 hover:shadow-2xl transition duration-300">
-            <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+          <div
+            className="rounded-lg p-8 transition-all duration-300 hover:scale-105 shadow-medium hover:shadow-heavy"
+            style={{
+              backgroundColor: isDark
+                ? "var(--clr-surface-a10)"
+                : "var(--clr-surface-a0)",
+            }}
+          >
+            <div
+              className="rounded-full w-16 h-16 flex items-center justify-center mb-6 transition-colors duration-300"
+              style={{
+                backgroundColor: isDark
+                  ? "var(--clr-info-a10)"
+                  : "var(--clr-info-a20)",
+                color: isDark ? "var(--clr-surface-a0)" : "var(--clr-info-a0)",
+              }}
+            >
               <svg
-                className="w-8 h-8 text-purple-600"
+                className="w-8 h-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -129,20 +237,43 @@ const Home = () => {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">
+            <h3
+              className="text-title-large mb-3 transition-colors duration-300"
+              style={{ color: "var(--clr-text-primary)" }}
+            >
               Transparent
             </h3>
-            <p className="text-gray-600">
+            <p
+              className="text-body-medium transition-colors duration-300"
+              style={{ color: "var(--clr-text-secondary)" }}
+            >
               All votes are recorded on a public blockchain, ensuring complete
               transparency and auditability.
             </p>
           </div>
 
           {/* Feature 3 */}
-          <div className="bg-white rounded-lg shadow-xl p-8 hover:shadow-2xl transition duration-300">
-            <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+          <div
+            className="rounded-lg p-8 transition-all duration-300 hover:scale-105 shadow-medium hover:shadow-heavy"
+            style={{
+              backgroundColor: isDark
+                ? "var(--clr-surface-a10)"
+                : "var(--clr-surface-a0)",
+            }}
+          >
+            <div
+              className="rounded-full w-16 h-16 flex items-center justify-center mb-6 transition-colors duration-300"
+              style={{
+                backgroundColor: isDark
+                  ? "var(--clr-success-a10)"
+                  : "var(--clr-success-a20)",
+                color: isDark
+                  ? "var(--clr-surface-a0)"
+                  : "var(--clr-success-a0)",
+              }}
+            >
               <svg
-                className="w-8 h-8 text-green-600"
+                className="w-8 h-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -155,8 +286,16 @@ const Home = () => {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Anonymous</h3>
-            <p className="text-gray-600">
+            <h3
+              className="text-title-large mb-3 transition-colors duration-300"
+              style={{ color: "var(--clr-text-primary)" }}
+            >
+              Anonymous
+            </h3>
+            <p
+              className="text-body-medium transition-colors duration-300"
+              style={{ color: "var(--clr-text-secondary)" }}
+            >
               Your vote is anonymous and private. Only you know who you voted
               for, while still being verifiable.
             </p>

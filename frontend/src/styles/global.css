@@ -1,0 +1,556 @@
+/* Import modern font stacks */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap"); /* Import modern font stacks */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap");
+
+/* Include Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Root theme variables */
+:root {
+  /* Base colors */
+  --clr-dark-a0: #000000;
+  --clr-light-a0: #ffffff;
+
+  /* Theme transition */
+  --theme-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Light theme variables */
+:root,
+[data-theme="light"] {
+  /* Primary colors for light theme */
+  --clr-primary-a0: #1e40af;
+  --clr-primary-a10: #3b82f6;
+  --clr-primary-a20: #60a5fa;
+  --clr-primary-a30: #93c5fd;
+  --clr-primary-a40: #bfdbfe;
+  --clr-primary-a50: #dbeafe;
+
+  /* Surface colors for light theme */
+  --clr-surface-a0: #ffffff;
+  --clr-surface-a10: #f9fafb;
+  --clr-surface-a20: #f3f4f6;
+  --clr-surface-a30: #e5e7eb;
+  --clr-surface-a40: #d1d5db;
+  --clr-surface-a50: #9ca3af;
+
+  /* Tonal surface colors for light theme */
+  --clr-surface-tonal-a0: #f8fafc;
+  --clr-surface-tonal-a10: #f1f5f9;
+  --clr-surface-tonal-a20: #e2e8f0;
+  --clr-surface-tonal-a30: #cbd5e1;
+  --clr-surface-tonal-a40: #94a3b8;
+  --clr-surface-tonal-a50: #64748b;
+
+  /* Text colors for light theme */
+  --clr-text-primary: #0f172a;
+  --clr-text-secondary: #475569;
+  --clr-text-tertiary: #64748b;
+  --clr-text-inverse: #ffffff;
+
+  /* Success colors */
+  --clr-success-a0: #22946e;
+  --clr-success-a10: #47d5a6;
+  --clr-success-a20: #9ae8ce;
+
+  /* Warning colors */
+  --clr-warning-a0: #a87a2a;
+  --clr-warning-a10: #d7ac61;
+  --clr-warning-a20: #ecd7b2;
+
+  /* Danger colors */
+  --clr-danger-a0: #9c2121;
+  --clr-danger-a10: #d94a4a;
+  --clr-danger-a20: #eb9e9e;
+
+  /* Info colors */
+  --clr-info-a0: #21498a;
+  --clr-info-a10: #4077d1;
+  --clr-info-a20: #92b2e5;
+
+  /* Semantic color mappings for light theme */
+  --clr-background-primary: var(--clr-surface-a0);
+  --clr-background-secondary: var(--clr-surface-a10);
+  --clr-surface-primary: var(--clr-surface-a0);
+  --clr-surface-secondary: var(--clr-surface-a10);
+  --clr-text-muted: var(--clr-text-tertiary);
+  --clr-text-on-accent: var(--clr-light-a0);
+
+  /* Accent colors */
+  --clr-accent-primary: var(--clr-primary-a0);
+  --clr-accent-secondary: var(--clr-primary-a10);
+  --clr-accent-surface: var(--clr-primary-a50);
+
+  /* Status message colors for light theme */
+  --clr-error-primary: var(--clr-danger-a0);
+  --clr-error-surface: rgba(220, 38, 38, 0.1);
+  --clr-error-border: rgba(220, 38, 38, 0.2);
+  --clr-error-text: var(--clr-danger-a0);
+
+  --clr-success-primary: var(--clr-success-a0);
+  --clr-success-surface: rgba(34, 148, 110, 0.1);
+  --clr-success-border: rgba(34, 148, 110, 0.2);
+  --clr-success-text: var(--clr-success-a0);
+
+  --clr-warning-primary: var(--clr-warning-a0);
+  --clr-warning-surface: rgba(168, 122, 42, 0.1);
+  --clr-warning-border: rgba(168, 122, 42, 0.2);
+  --clr-warning-text: var(--clr-warning-a0);
+
+  /* Gradients */
+  --clr-gradient-primary: linear-gradient(
+    135deg,
+    var(--clr-primary-a0) 0%,
+    var(--clr-primary-a10) 100%
+  );
+  --clr-gradient-warning: linear-gradient(
+    135deg,
+    var(--clr-warning-a0) 0%,
+    var(--clr-warning-a10) 100%
+  );
+
+  /* Shadow colors */
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  --shadow-medium: rgba(0, 0, 0, 0.15);
+  --shadow-heavy: rgba(0, 0, 0, 0.25);
+
+  /* Shadow utilities */
+  --shadow-sm: 0 1px 2px 0 var(--shadow-light);
+  --shadow-md: 0 4px 6px -1px var(--shadow-medium),
+    0 2px 4px -1px var(--shadow-light);
+  --shadow-lg: 0 10px 15px -3px var(--shadow-medium),
+    0 4px 6px -2px var(--shadow-light);
+  --shadow-xl: 0 20px 25px -5px var(--shadow-heavy),
+    0 10px 10px -5px var(--shadow-light);
+}
+
+/* Dark theme variables */
+[data-theme="dark"] {
+  /* Primary colors for dark theme */
+  --clr-primary-a0: #e6d8d8;
+  --clr-primary-a10: #e9dcdc;
+  --clr-primary-a20: #ece1e1;
+  --clr-primary-a30: #eee5e5;
+  --clr-primary-a40: #f1e9e9;
+  --clr-primary-a50: #f4eeee;
+
+  /* Surface colors for dark theme */
+  --clr-surface-a0: #050505;
+  --clr-surface-a10: #202020;
+  --clr-surface-a20: #373737;
+  --clr-surface-a30: #515151;
+  --clr-surface-a40: #6b6b6b;
+  --clr-surface-a50: #878787;
+
+  /* Tonal surface colors for dark theme */
+  --clr-surface-tonal-a0: #1c1b1b;
+  --clr-surface-tonal-a10: #313030;
+  --clr-surface-tonal-a20: #474646;
+  --clr-surface-tonal-a30: #5f5e5e;
+  --clr-surface-tonal-a40: #777777;
+  --clr-surface-tonal-a50: #919090;
+
+  /* Text colors for dark theme */
+  --clr-text-primary: #f1f5f9;
+  --clr-text-secondary: #cbd5e1;
+  --clr-text-tertiary: #94a3b8;
+  --clr-text-inverse: #0f172a;
+
+  /* Success colors (adjusted for dark theme) */
+  --clr-success-a0: #22946e;
+  --clr-success-a10: #47d5a6;
+  --clr-success-a20: #9ae8ce;
+
+  /* Warning colors (adjusted for dark theme) */
+  --clr-warning-a0: #a87a2a;
+  --clr-warning-a10: #d7ac61;
+  --clr-warning-a20: #ecd7b2;
+
+  /* Danger colors (adjusted for dark theme) */
+  --clr-danger-a0: #9c2121;
+  --clr-danger-a10: #d94a4a;
+  --clr-danger-a20: #eb9e9e;
+
+  /* Info colors (adjusted for dark theme) */
+  --clr-info-a0: #21498a;
+  --clr-info-a10: #4077d1;
+  --clr-info-a20: #92b2e5;
+
+  /* Semantic color mappings for dark theme */
+  --clr-background-primary: var(--clr-surface-a0);
+  --clr-background-secondary: var(--clr-surface-a10);
+  --clr-surface-primary: var(--clr-surface-a0);
+  --clr-surface-secondary: var(--clr-surface-a10);
+  --clr-text-muted: var(--clr-text-tertiary);
+  --clr-text-on-accent: var(--clr-dark-a0);
+
+  /* Accent colors */
+  --clr-accent-primary: var(--clr-primary-a10);
+  --clr-accent-secondary: var(--clr-primary-a20);
+  --clr-accent-surface: rgba(233, 220, 220, 0.1);
+
+  /* Status message colors for dark theme */
+  --clr-error-primary: var(--clr-danger-a10);
+  --clr-error-surface: rgba(156, 33, 33, 0.15);
+  --clr-error-border: rgba(156, 33, 33, 0.3);
+  --clr-error-text: var(--clr-danger-a10);
+
+  --clr-success-primary: var(--clr-success-a10);
+  --clr-success-surface: rgba(34, 148, 110, 0.15);
+  --clr-success-border: rgba(34, 148, 110, 0.3);
+  --clr-success-text: var(--clr-success-a10);
+
+  --clr-warning-primary: var(--clr-warning-a10);
+  --clr-warning-surface: rgba(168, 122, 42, 0.15);
+  --clr-warning-border: rgba(168, 122, 42, 0.3);
+  --clr-warning-text: var(--clr-warning-a10);
+
+  /* Gradients */
+  --clr-gradient-primary: linear-gradient(
+    135deg,
+    var(--clr-primary-a10) 0%,
+    var(--clr-primary-a20) 100%
+  );
+  --clr-gradient-warning: linear-gradient(
+    135deg,
+    var(--clr-warning-a10) 0%,
+    var(--clr-warning-a20) 100%
+  );
+
+  /* Shadow colors for dark theme */
+  --shadow-light: rgba(0, 0, 0, 0.3);
+  --shadow-medium: rgba(0, 0, 0, 0.5);
+  --shadow-heavy: rgba(0, 0, 0, 0.7);
+
+  /* Shadow utilities */
+  --shadow-sm: 0 1px 2px 0 var(--shadow-light);
+  --shadow-md: 0 4px 6px -1px var(--shadow-medium),
+    0 2px 4px -1px var(--shadow-light);
+  --shadow-lg: 0 10px 15px -3px var(--shadow-medium),
+    0 4px 6px -2px var(--shadow-light);
+  --shadow-xl: 0 20px 25px -5px var(--shadow-heavy),
+    0 10px 10px -5px var(--shadow-light);
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    system-ui, sans-serif;
+  background-color: var(--clr-surface-a0);
+  color: var(--clr-text-primary);
+  transition: var(--theme-transition);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography scale with improved hierarchy */
+.font-brand {
+  font-family: "Orbitron", "Poppins", monospace;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+}
+
+.font-body {
+  font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    system-ui, sans-serif;
+}
+
+/* Display typography - largest text */
+.text-display-large {
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+.text-display-medium {
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+.text-display-small {
+  font-size: 3rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+/* Headline typography - main headings */
+.text-headline-large {
+  font-size: 2.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+.text-headline-medium {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.25;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+.text-headline-small {
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+/* Title typography - section headings */
+.text-title-large {
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.35;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+.text-title-medium {
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.4;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+.text-title-small {
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.4;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+/* Body typography - main content */
+.text-body-large {
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1.6;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+.text-body-medium {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+.text-body-small {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+/* Label typography - small UI text */
+.text-label-large {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+.text-label-medium {
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.3;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+.text-label-small {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.3;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+/* Text color utilities */
+.text-primary {
+  color: var(--clr-text-primary);
+}
+
+.text-secondary {
+  color: var(--clr-text-secondary);
+}
+
+.text-tertiary {
+  color: var(--clr-text-tertiary);
+}
+
+.text-inverse {
+  color: var(--clr-text-inverse);
+}
+
+/* Font weight utilities */
+.font-light {
+  font-weight: 300;
+}
+
+.font-normal {
+  font-weight: 400;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-extrabold {
+  font-weight: 800;
+}
+
+.font-black {
+  font-weight: 900;
+}
+
+/* Utility classes */
+.bg-primary {
+  background-color: var(--clr-primary-a0);
+}
+
+.bg-surface {
+  background-color: var(--clr-surface-a0);
+}
+
+.bg-surface-variant {
+  background-color: var(--clr-surface-a10);
+}
+
+.text-primary {
+  color: var(--clr-text-primary);
+}
+
+.text-secondary {
+  color: var(--clr-text-secondary);
+}
+
+.text-tertiary {
+  color: var(--clr-text-tertiary);
+}
+
+/* Modern shadows */
+.shadow-soft {
+  box-shadow: 0 2px 8px var(--shadow-light);
+}
+
+.shadow-medium {
+  box-shadow: 0 4px 16px var(--shadow-medium);
+}
+
+.shadow-heavy {
+  box-shadow: 0 8px 32px var(--shadow-heavy);
+}
+
+/* Smooth transitions */
+.transition-theme {
+  transition: var(--theme-transition);
+}
+
+/* Glass morphism effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .glass-effect {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Focus and accessibility */
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--clr-surface-a0), 0 0 0 4px var(--clr-primary-a20);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--clr-surface-a10);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--clr-surface-a40);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--clr-surface-a50);
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.5s ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.5s ease-out;
+}
