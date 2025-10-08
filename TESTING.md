@@ -49,48 +49,6 @@ npm run dev
 
 ## 2. Unit Testing
 
-### Backend Unit Tests
-
-Create test file: `backend/tests/auth.test.js`
-
-```javascript
-// Example: Test authentication
-const request = require("supertest");
-const app = require("../src/index");
-
-describe("Authentication Tests", () => {
-  test("POST /api/auth/register - should register new user", async () => {
-    const response = await request(app).post("/api/auth/register").send({
-      name: "Test User",
-      email: "test@example.com",
-      password: "password123",
-      ethAddress: "0x1234567890123456789012345678901234567890",
-      role: "voter",
-    });
-
-    expect(response.status).toBe(201);
-    expect(response.body.success).toBe(true);
-  });
-
-  test("POST /api/auth/login - should login user", async () => {
-    const response = await request(app).post("/api/auth/login").send({
-      email: "test@example.com",
-      password: "password123",
-    });
-
-    expect(response.status).toBe(200);
-    expect(response.body.token).toBeDefined();
-  });
-});
-```
-
-Run tests:
-
-```bash
-cd backend
-npm test
-```
-
 ### Smart Contract Unit Tests
 
 File: `contracts/test/Voting.test.js`
@@ -205,54 +163,7 @@ cd contracts
 truffle test
 ```
 
----
-
-## 3. Integration Testing
-
-### API Integration Tests
-
-Test complete workflows:
-
-```javascript
-describe("Complete Voting Workflow", () => {
-  let adminToken;
-  let voterToken;
-  let contractAddress;
-
-  test("1. Admin registers", async () => {
-    // Register admin
-    // Login and get token
-  });
-
-  test("2. Admin adds candidates", async () => {
-    // Add 3 candidates
-  });
-
-  test("3. Admin registers voters", async () => {
-    // Register multiple voters
-  });
-
-  test("4. Admin starts election", async () => {
-    // Start election
-  });
-
-  test("5. Voter casts vote", async () => {
-    // Cast vote via API
-  });
-
-  test("6. Admin ends election", async () => {
-    // End election
-  });
-
-  test("7. Results are correct", async () => {
-    // Verify vote counts
-  });
-});
-```
-
----
-
-## 4. End-to-End Testing
+## 3. End-to-End Testing
 
 ### Manual E2E Test Script
 
