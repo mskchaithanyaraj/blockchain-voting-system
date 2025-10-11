@@ -186,6 +186,18 @@ export const registerVotersBatch = (votersData) => {
 };
 
 /**
+ * Get all registered voters (Admin only)
+ * @param {Object} params - Query parameters (page, limit)
+ * @returns {Promise} API response with voters list
+ */
+export const getRegisteredVoters = (params = {}) => {
+  const queryString = new URLSearchParams(params).toString();
+  return api.get(
+    queryString ? `/admin/voters?${queryString}` : "/admin/voters"
+  );
+};
+
+/**
  * Start the election (Admin only)
  * @param {Object} electionData - Election data (electionName)
  * @returns {Promise} API response

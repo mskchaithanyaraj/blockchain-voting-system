@@ -389,6 +389,74 @@ exports.getElectionStats = async (req, res) => {
   }
 };
 
+// Get all registered voters with their details
+exports.getRegisteredVoters = async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+
+    // Get registered voters from database with pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const voters = await User.find({
+      role: "voter",
+      isRegistered: true,
+    })
+      .select("name email ethAddress hasVoted votedCandidateId createdAt")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get total count for pagination
+    const totalVoters = await User.countDocuments({
+      role: "voter",
+      isRegistered: true,
+    });
+
+    // Get voting statistics
+    const totalRegistered = await User.countDocuments({
+      role: "voter",
+      isRegistered: true,
+    });
+    const totalVoted = await User.countDocuments({
+      role: "voter",
+      isRegistered: true,
+      hasVoted: true,
+    });
+
+    const voterStats = {
+      totalRegistered,
+      totalVoted,
+      pendingVotes: totalRegistered - totalVoted,
+      turnoutPercentage:
+        totalRegistered > 0
+          ? ((totalVoted / totalRegistered) * 100).toFixed(2)
+          : 0,
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: "Fetched registered voters",
+      data: {
+        voters,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages: Math.ceil(totalVoters / parseInt(limit)),
+          totalVoters,
+          hasNext: parseInt(page) * parseInt(limit) < totalVoters,
+          hasPrev: parseInt(page) > 1,
+        },
+        statistics: voterStats,
+      },
+    });
+  } catch (error) {
+    console.error("Get registered voters error:", error);
+    return res.status(500).json({
+      success: false,
+      error: "GetRegisteredVotersFailed",
+      message: error.message,
+    });
+  }
+};
+
 // Get election history (all past elections)
 exports.getElectionHistory = async (req, res) => {
   try {

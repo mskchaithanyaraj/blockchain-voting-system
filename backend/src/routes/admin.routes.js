@@ -77,6 +77,18 @@ router.post(
   adminController.registerVotersBatch
 );
 
+/**
+ * @route   GET /api/admin/voters
+ * @desc    Get all registered voters with their details
+ * @access  Admin only
+ */
+router.get(
+  "/voters",
+  verifyToken,
+  isAdmin,
+  adminController.getRegisteredVoters
+);
+
 // ============================================
 // Election Management Routes
 // ============================================

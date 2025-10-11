@@ -6,6 +6,14 @@ import {
   CheckCircle,
   XCircle,
   Loader2,
+  User,
+  Mail,
+  Wallet,
+  Vote,
+  Calendar,
+  Search,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import * as apiService from "../services/api.service";
 
@@ -15,9 +23,25 @@ import * as apiService from "../services/api.service";
  */
 const ManageVoters = () => {
   const [voterCount, setVoterCount] = useState(0);
+  const [voters, setVoters] = useState([]);
+  const [voterStats, setVoterStats] = useState({
+    totalRegistered: 0,
+    totalVoted: 0,
+    pendingVotes: 0,
+    turnoutPercentage: 0,
+  });
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalVoters: 0,
+    hasNext: false,
+    hasPrev: false,
+  });
   const [loading, setLoading] = useState(false);
+  const [votersLoading, setVotersLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Single voter form
   const [singleVoterAddress, setSingleVoterAddress] = useState("");
@@ -29,6 +53,7 @@ const ManageVoters = () => {
 
   useEffect(() => {
     fetchElectionStats();
+    fetchVoters();
   }, []);
 
   const fetchElectionStats = async () => {
@@ -43,6 +68,28 @@ const ManageVoters = () => {
       setError(err.message || "Failed to fetch election statistics");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchVoters = async (page = 1) => {
+    try {
+      setVotersLoading(true);
+      setError(null);
+
+      const response = await apiService.getRegisteredVoters({
+        page,
+        limit: 10,
+      });
+
+      const data = response.data.data;
+      setVoters(data.voters || []);
+      setVoterStats(data.statistics || {});
+      setPagination(data.pagination || {});
+    } catch (err) {
+      console.error("Error fetching voters:", err);
+      setError(err.message || "Failed to fetch voters");
+    } finally {
+      setVotersLoading(false);
     }
   };
 
@@ -72,6 +119,7 @@ const ManageVoters = () => {
       setSuccess(`Voter ${singleVoterAddress} registered successfully!`);
       setSingleVoterAddress("");
       await fetchElectionStats();
+      await fetchVoters(); // Refresh voter list
 
       setTimeout(() => setSuccess(null), 5000);
     } catch (err) {
@@ -127,6 +175,7 @@ const ManageVoters = () => {
       setSuccess(`Successfully registered ${addresses.length} voters!`);
       setBatchAddresses("");
       await fetchElectionStats();
+      await fetchVoters(); // Refresh voter list
 
       setTimeout(() => setSuccess(null), 5000);
     } catch (err) {
@@ -136,6 +185,36 @@ const ManageVoters = () => {
       setBatchSubmitting(false);
     }
   };
+
+  const handleRefresh = () => {
+    fetchElectionStats();
+    fetchVoters(pagination.currentPage);
+  };
+
+  const handlePageChange = (newPage) => {
+    fetchVoters(newPage);
+  };
+
+  const formatAddress = (address) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const filteredVoters = voters.filter(
+    (voter) =>
+      voter.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      voter.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      voter.ethAddress.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div
@@ -413,10 +492,10 @@ const ManageVoters = () => {
                 color: "var(--clr-text-primary)",
               }}
             >
-              Registered Voters ({voterCount})
+              Registered Voters ({voterStats.totalRegistered || voterCount})
             </h2>
             <button
-              onClick={fetchElectionStats}
+              onClick={handleRefresh}
               className="flex items-center font-medium transition-colors"
               style={{ color: "var(--clr-text-secondary)" }}
               onMouseEnter={(e) => {
@@ -431,7 +510,7 @@ const ManageVoters = () => {
             </button>
           </div>
 
-          {loading ? (
+          {loading || votersLoading ? (
             <div className="text-center py-12">
               <div
                 className="animate-spin rounded-full h-12 w-12 mx-auto mb-4"
@@ -444,7 +523,7 @@ const ManageVoters = () => {
                 Loading voters...
               </p>
             </div>
-          ) : voterCount === 0 ? (
+          ) : voters.length === 0 ? (
             <div className="text-center py-12">
               <Users
                 className="w-16 h-16 mx-auto mb-4"
@@ -470,30 +549,283 @@ const ManageVoters = () => {
               </p>
             </div>
           ) : (
-            <div className="text-center py-12">
-              <CheckCircle
-                className="w-16 h-16 mx-auto mb-4"
-                style={{
-                  color: "var(--clr-success-primary)",
-                }}
-              />
-              <p
-                className="text-lg mb-2"
-                style={{
-                  color: "var(--clr-text-primary)",
-                }}
-              >
-                {voterCount} voters registered
-              </p>
-              <p
-                className="text-sm"
-                style={{
-                  color: "var(--clr-text-secondary)",
-                }}
-              >
-                Voters have been successfully registered on the blockchain
-              </p>
-            </div>
+            <>
+              {/* Voter Statistics */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div
+                  className="text-center p-4 rounded-lg"
+                  style={{ backgroundColor: "var(--clr-surface-a10)" }}
+                >
+                  <p
+                    className="text-2xl font-bold"
+                    style={{ color: "var(--clr-text-primary)" }}
+                  >
+                    {voterStats.totalRegistered}
+                  </p>
+                  <p
+                    className="text-sm"
+                    style={{ color: "var(--clr-text-secondary)" }}
+                  >
+                    Total Registered
+                  </p>
+                </div>
+                <div
+                  className="text-center p-4 rounded-lg"
+                  style={{ backgroundColor: "var(--clr-success-surface)" }}
+                >
+                  <p
+                    className="text-2xl font-bold"
+                    style={{ color: "var(--clr-success-text)" }}
+                  >
+                    {voterStats.totalVoted}
+                  </p>
+                  <p
+                    className="text-sm"
+                    style={{ color: "var(--clr-success-text)" }}
+                  >
+                    Already Voted
+                  </p>
+                </div>
+                <div
+                  className="text-center p-4 rounded-lg"
+                  style={{ backgroundColor: "var(--clr-warning-surface)" }}
+                >
+                  <p
+                    className="text-2xl font-bold"
+                    style={{ color: "var(--clr-warning-text)" }}
+                  >
+                    {voterStats.pendingVotes}
+                  </p>
+                  <p
+                    className="text-sm"
+                    style={{ color: "var(--clr-warning-text)" }}
+                  >
+                    Pending Votes
+                  </p>
+                </div>
+                <div
+                  className="text-center p-4 rounded-lg"
+                  style={{ backgroundColor: "var(--clr-surface-a10)" }}
+                >
+                  <p
+                    className="text-2xl font-bold"
+                    style={{ color: "var(--clr-text-primary)" }}
+                  >
+                    {voterStats.turnoutPercentage}%
+                  </p>
+                  <p
+                    className="text-sm"
+                    style={{ color: "var(--clr-text-secondary)" }}
+                  >
+                    Turnout Rate
+                  </p>
+                </div>
+              </div>
+
+              {/* Search Bar */}
+              <div className="mb-6">
+                <div className="relative">
+                  <Search
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5"
+                    style={{ color: "var(--clr-text-tertiary)" }}
+                  />
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search voters by name, email, or address..."
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border transition duration-200"
+                    style={{
+                      backgroundColor: "var(--clr-surface-primary)",
+                      borderColor: "var(--clr-surface-a40)",
+                      color: "var(--clr-text-primary)",
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "var(--clr-primary)";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "var(--clr-surface-a40)";
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Voter List */}
+              <div className="space-y-4 mb-6">
+                {filteredVoters.map((voter) => (
+                  <div
+                    key={voter.ethAddress}
+                    className="rounded-lg p-4 border transition duration-200 hover:shadow-md"
+                    style={{
+                      backgroundColor: "var(--clr-surface-a10)",
+                      borderColor: voter.hasVoted
+                        ? "var(--clr-success-border)"
+                        : "var(--clr-surface-a20)",
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div
+                          className="w-12 h-12 rounded-full flex items-center justify-center"
+                          style={{
+                            backgroundColor: voter.hasVoted
+                              ? "var(--clr-success-primary)"
+                              : "var(--clr-surface-a30)",
+                          }}
+                        >
+                          <User
+                            className="w-6 h-6"
+                            style={{
+                              color: voter.hasVoted
+                                ? "white"
+                                : "var(--clr-text-secondary)",
+                            }}
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <h4
+                              className="font-semibold text-lg"
+                              style={{ color: "var(--clr-text-primary)" }}
+                            >
+                              {voter.name}
+                            </h4>
+                            {voter.hasVoted && (
+                              <span
+                                className="px-2 py-1 rounded-full text-xs font-medium"
+                                style={{
+                                  backgroundColor: "var(--clr-success-surface)",
+                                  color: "var(--clr-success-text)",
+                                }}
+                              >
+                                ✓ Voted
+                              </span>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                            <div className="flex items-center space-x-1">
+                              <Mail
+                                className="w-4 h-4"
+                                style={{ color: "var(--clr-text-tertiary)" }}
+                              />
+                              <span
+                                style={{ color: "var(--clr-text-secondary)" }}
+                              >
+                                {voter.email}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <Wallet
+                                className="w-4 h-4"
+                                style={{ color: "var(--clr-text-tertiary)" }}
+                              />
+                              <span
+                                className="font-mono text-xs"
+                                style={{ color: "var(--clr-text-secondary)" }}
+                              >
+                                {formatAddress(voter.ethAddress)}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <Calendar
+                                className="w-4 h-4"
+                                style={{ color: "var(--clr-text-tertiary)" }}
+                              />
+                              <span
+                                style={{ color: "var(--clr-text-secondary)" }}
+                              >
+                                {formatDate(voter.createdAt)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {voter.hasVoted && (
+                        <div className="text-right">
+                          <div className="flex items-center space-x-1 mb-1">
+                            <Vote
+                              className="w-4 h-4"
+                              style={{ color: "var(--clr-success-text)" }}
+                            />
+                            <span
+                              className="text-sm font-medium"
+                              style={{ color: "var(--clr-success-text)" }}
+                            >
+                              Candidate #{voter.votedCandidateId}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between">
+                  <p
+                    className="text-sm"
+                    style={{ color: "var(--clr-text-secondary)" }}
+                  >
+                    Showing {(pagination.currentPage - 1) * 10 + 1} to{" "}
+                    {Math.min(
+                      pagination.currentPage * 10,
+                      pagination.totalVoters
+                    )}{" "}
+                    of {pagination.totalVoters} voters
+                  </p>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() =>
+                        handlePageChange(pagination.currentPage - 1)
+                      }
+                      disabled={!pagination.hasPrev}
+                      className="p-2 rounded-lg transition duration-200 disabled:opacity-50"
+                      style={{
+                        backgroundColor: pagination.hasPrev
+                          ? "var(--clr-surface-a20)"
+                          : "var(--clr-surface-a10)",
+                        color: pagination.hasPrev
+                          ? "var(--clr-text-primary)"
+                          : "var(--clr-text-tertiary)",
+                        cursor: pagination.hasPrev ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <span
+                      className="px-3 py-1 rounded-lg"
+                      style={{
+                        backgroundColor: "var(--clr-surface-a20)",
+                        color: "var(--clr-text-primary)",
+                      }}
+                    >
+                      {pagination.currentPage} of {pagination.totalPages}
+                    </span>
+                    <button
+                      onClick={() =>
+                        handlePageChange(pagination.currentPage + 1)
+                      }
+                      disabled={!pagination.hasNext}
+                      className="p-2 rounded-lg transition duration-200 disabled:opacity-50"
+                      style={{
+                        backgroundColor: pagination.hasNext
+                          ? "var(--clr-surface-a20)"
+                          : "var(--clr-surface-a10)",
+                        color: pagination.hasNext
+                          ? "var(--clr-text-primary)"
+                          : "var(--clr-text-tertiary)",
+                        cursor: pagination.hasNext ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

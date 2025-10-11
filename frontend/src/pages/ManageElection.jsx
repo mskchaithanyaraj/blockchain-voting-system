@@ -98,7 +98,8 @@ const ManageElection = () => {
       }
 
       const electionData = {
-        electionName: electionName.trim() || "General Election 2025",
+        electionName:
+          electionName.trim() || `Election ${new Date().getFullYear()}`,
       };
       await apiService.startElection(electionData);
 
@@ -180,7 +181,7 @@ const ManageElection = () => {
       setSuccess(null);
 
       const electionData = {
-        electionName: electionName.trim() || "New Election 2025",
+        electionName: electionName.trim() || "Untitled Election",
       };
       const response = await apiService.resetElection(electionData);
 
@@ -392,7 +393,15 @@ const ManageElection = () => {
                   color: "var(--clr-text-primary)",
                 }}
               >
-                {electionState.electionName || "General Election 2025"}
+                {electionState.electionName &&
+                electionState.electionName !== "New Election 2025" &&
+                electionState.electionName !== "General Election 2025" &&
+                electionState.electionName !== "Untitled Election" &&
+                !electionState.electionName.match(/^Election \d{4}$/)
+                  ? electionState.electionName
+                  : electionState.state === 0
+                  ? "Election name not yet set"
+                  : electionState.electionName}
               </p>
             </div>
             <div>
@@ -603,8 +612,35 @@ const ManageElection = () => {
             </div>
           )}
 
-          {/* Election Name Input (only show when not started or when ended for reset) */}
-          {(electionState.state === 0 || electionState.state === 2) && (
+          {/* Election Name Info (when not ready to set name) */}
+          {electionState.state === 0 &&
+            (electionState.totalCandidates === 0 ||
+              electionState.totalVoters === 0) && (
+              <div className="mb-6">
+                <div
+                  className="p-4 rounded-lg border"
+                  style={{
+                    backgroundColor: "var(--clr-surface-a10)",
+                    borderColor: "var(--clr-surface-a20)",
+                  }}
+                >
+                  <p
+                    className="text-sm"
+                    style={{ color: "var(--clr-text-secondary)" }}
+                  >
+                    <strong>Next Step:</strong> Add candidates and register
+                    voters first. You'll be able to set the election name when
+                    you're ready to start the election.
+                  </p>
+                </div>
+              </div>
+            )}
+
+          {/* Election Name Input (only show when ready to start election or when ended for reset) */}
+          {((electionState.state === 0 &&
+            electionState.totalCandidates > 0 &&
+            electionState.totalVoters > 0) ||
+            electionState.state === 2) && (
             <div className="mb-6">
               <label
                 htmlFor="electionName"
@@ -612,7 +648,7 @@ const ManageElection = () => {
                 style={{ color: "var(--clr-text-secondary)" }}
               >
                 {electionState.state === 0
-                  ? "Election Name"
+                  ? "Election Name (required to start)"
                   : "New Election Name"}
               </label>
               <input
@@ -623,7 +659,7 @@ const ManageElection = () => {
                 placeholder={
                   electionState.state === 0
                     ? "Enter election name (e.g., Presidential Election 2025)"
-                    : "Enter new election name"
+                    : "Enter name for the new election"
                 }
                 className="w-full px-4 py-3 rounded-lg border transition duration-200"
                 style={{
@@ -1231,13 +1267,16 @@ const ManageElection = () => {
               >
                 {showConfirmModal === "start"
                   ? `Are you sure you want to start the election "${
-                      electionName.trim() || "General Election 2025"
+                      electionName.trim() ||
+                      `Election ${new Date().getFullYear()}`
                     }"? Make sure all candidates and voters are registered.`
                   : showConfirmModal === "end"
                   ? "Are you sure you want to end the election? This action cannot be undone and results will be finalized."
-                  : `Are you sure you want to reset the election? This will archive the current election data and clear all candidates, voters, and votes to start fresh. The new election will be named "${
-                      electionName.trim() || "New Election 2025"
-                    }". Previous election data will be preserved in the election history.`}
+                  : `Are you sure you want to reset the election? This will archive the current election data and clear all candidates, voters, and votes to start fresh.${
+                      electionName.trim()
+                        ? ` The new election will be named "${electionName.trim()}".`
+                        : " You'll be able to set the election name when you're ready to start."
+                    } Previous election data will be preserved in the election history.`}
               </p>
               <div className="flex space-x-4">
                 <button
