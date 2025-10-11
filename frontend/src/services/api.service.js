@@ -328,5 +328,40 @@ export const isAuthenticated = () => {
   return !!getAuthToken();
 };
 
+// ============================================
+// Election History API Functions
+// ============================================
+
+/**
+ * Get election history (all past elections)
+ * @param {Object} params - Query parameters (page, limit, sort)
+ * @returns {Promise} Promise object with election history data
+ */
+export const getElectionHistory = (params = {}) => {
+  const queryString = new URLSearchParams(params).toString();
+  const url = queryString
+    ? `/admin/elections/history?${queryString}`
+    : "/admin/elections/history";
+  return api.get(url);
+};
+
+/**
+ * Get specific election details from history
+ * @param {number} electionNumber - Election number to fetch
+ * @returns {Promise} Promise object with election details
+ */
+export const getElectionById = (electionNumber) => {
+  return api.get(`/admin/elections/history/${electionNumber}`);
+};
+
+/**
+ * Delete election from history (dangerous operation)
+ * @param {number} electionNumber - Election number to delete
+ * @returns {Promise} Promise object with deletion result
+ */
+export const deleteElectionHistory = (electionNumber) => {
+  return api.delete(`/admin/elections/history/${electionNumber}`);
+};
+
 // Export default axios instance for custom requests
 export default api;

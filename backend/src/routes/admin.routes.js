@@ -136,4 +136,44 @@ router.get(
   adminController.getElectionStats
 );
 
+// ============================================
+// Election History Routes
+// ============================================
+
+/**
+ * @route   GET /api/admin/elections/history
+ * @desc    Get election history (all past elections)
+ * @access  Admin only
+ */
+router.get(
+  "/elections/history",
+  verifyToken,
+  isAdmin,
+  adminController.getElectionHistory
+);
+
+/**
+ * @route   GET /api/admin/elections/history/:electionNumber
+ * @desc    Get specific election details from history
+ * @access  Admin only
+ */
+router.get(
+  "/elections/history/:electionNumber",
+  verifyToken,
+  isAdmin,
+  adminController.getElectionById
+);
+
+/**
+ * @route   DELETE /api/admin/elections/history/:electionNumber
+ * @desc    Delete election from history (dangerous operation)
+ * @access  Admin only
+ */
+router.delete(
+  "/elections/history/:electionNumber",
+  verifyToken,
+  isAdmin,
+  adminController.deleteElectionHistory
+);
+
 module.exports = router;

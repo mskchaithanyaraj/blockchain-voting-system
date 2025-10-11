@@ -30,6 +30,7 @@ const Navbar = () => {
     { path: "/admin/candidates", label: "Candidates" },
     { path: "/admin/voters", label: "Voters" },
     { path: "/admin/election", label: "Election" },
+    { path: "/admin/history", label: "History" },
   ];
 
   const voterLinks = [

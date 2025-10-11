@@ -8,6 +8,7 @@ import {
   CheckCircle,
   XCircle,
   Loader2,
+  Archive,
 } from "lucide-react";
 import * as apiService from "../services/api.service";
 
@@ -143,13 +144,27 @@ const ManageElection = () => {
       setError(null);
       setSuccess(null);
 
-      await apiService.endElection();
+      const response = await apiService.endElection();
 
-      setSuccess("Election ended successfully!");
+      // Show success message based on response
+      const data = response.data;
+      let successMessage = data.message || "Election ended successfully!";
+
+      // Add additional info if archived
+      if (data.data?.archived && data.data?.electionNumber) {
+        successMessage += ` You can view the archived results in the Election History.`;
+      }
+
+      if (data.warning) {
+        console.warn("Archive warning:", data.warning);
+        successMessage += ` (Warning: ${data.warning})`;
+      }
+
+      setSuccess(successMessage);
       setShowConfirmModal(null);
       await fetchElectionData();
 
-      setTimeout(() => setSuccess(null), 5000);
+      setTimeout(() => setSuccess(null), 8000); // Longer timeout for archive message
     } catch (err) {
       console.error("Error ending election:", err);
       setError(err.message || "Failed to end election");
@@ -167,16 +182,20 @@ const ManageElection = () => {
       const electionData = {
         electionName: electionName.trim() || "New Election 2025",
       };
-      await apiService.resetElection(electionData);
+      const response = await apiService.resetElection(electionData);
 
-      setSuccess(
-        "Election reset successfully! You can now add new candidates and voters."
-      );
+      // Use the message from the backend response
+      const data = response.data;
+      let successMessage =
+        data.message ||
+        "Election reset successfully! You can now add new candidates and voters.";
+
+      setSuccess(successMessage);
       setShowConfirmModal(null);
       setElectionName(""); // Reset input
       await fetchElectionData();
 
-      setTimeout(() => setSuccess(null), 5000);
+      setTimeout(() => setSuccess(null), 8000); // Longer timeout for archive message
     } catch (err) {
       console.error("Error resetting election:", err);
       setError(err.message || "Failed to reset election");
@@ -762,24 +781,40 @@ const ManageElection = () => {
             {electionState.state === 2 && (
               <button
                 onClick={() => setShowConfirmModal("reset")}
-                className="py-4 px-6 rounded-lg font-semibold transition duration-200 flex flex-col items-center justify-center"
+                className="py-4 px-6 rounded-lg font-semibold transition duration-200 flex flex-col items-center justify-center border"
                 style={{
-                  backgroundColor: "var(--clr-primary)",
-                  color: "var(--clr-text-inverse)",
+                  backgroundColor: "#374151", // bg-gray-700 equivalent
+                  borderColor: "#4B5563", // border-gray-600 equivalent
+                  color: "#E5E7EB", // text-gray-200 equivalent
                   cursor: "pointer",
+                  minHeight: "100px",
+                  minWidth: "200px",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  display: "flex",
+                  flexDirection: "column",
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.opacity = "0.9";
+                  e.target.style.backgroundColor = "#4B5563"; // hover:bg-gray-600 equivalent
+                  e.target.style.transform = "translateY(-1px)";
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.opacity = "1";
+                  e.target.style.backgroundColor = "#374151"; // back to bg-gray-700
+                  e.target.style.transform = "translateY(0)";
                 }}
               >
-                <div className="flex items-center justify-center">
+                <div className="flex items-center justify-center mb-2">
                   <RefreshCw className="w-6 h-6 mr-2" />
-                  New Election
+                  <span style={{ fontSize: "16px", fontWeight: "600" }}>
+                    New Election
+                  </span>
                 </div>
-                <p className="text-xs mt-2">Start fresh election</p>
+                <p
+                  className="text-xs mt-1"
+                  style={{ opacity: 0.8, color: "#D1D5DB" }} // text-gray-300 equivalent
+                >
+                  Start fresh election
+                </p>
               </button>
             )}
           </div>
@@ -829,14 +864,29 @@ const ManageElection = () => {
               backgroundColor: "var(--clr-surface-secondary)",
             }}
           >
-            <h2
-              className="text-2xl font-bold mb-6"
-              style={{
-                color: "var(--clr-text-primary)",
-              }}
-            >
-              Election Results
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2
+                className="text-2xl font-bold"
+                style={{
+                  color: "var(--clr-text-primary)",
+                }}
+              >
+                Election Results
+              </h2>
+
+              {/* Archive Status Indicator */}
+              <div
+                className="flex items-center px-3 py-1 rounded-full text-sm"
+                style={{
+                  backgroundColor: "var(--clr-success-surface)",
+                  color: "var(--clr-success-text)",
+                  border: "1px solid var(--clr-success-border)",
+                }}
+              >
+                <Archive className="w-4 h-4 mr-2" />
+                <span>Automatically Archived</span>
+              </div>
+            </div>
 
             {winner && (
               <div
@@ -1098,6 +1148,57 @@ const ManageElection = () => {
                 </p>
               </div>
             )}
+
+            {/* Archive Information */}
+            <div
+              className="mt-6 p-4 rounded-lg border"
+              style={{
+                backgroundColor: "var(--clr-surface-a10)",
+                borderColor: "var(--clr-surface-a20)",
+              }}
+            >
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <Archive
+                    className="h-5 w-5 mt-0.5"
+                    style={{
+                      color: "var(--clr-text-secondary)",
+                    }}
+                  />
+                </div>
+                <div className="ml-3">
+                  <p
+                    className="text-sm font-medium mb-1"
+                    style={{
+                      color: "var(--clr-text-primary)",
+                    }}
+                  >
+                    Election Archived
+                  </p>
+                  <p
+                    className="text-sm"
+                    style={{
+                      color: "var(--clr-text-secondary)",
+                    }}
+                  >
+                    This election has been automatically archived to preserve
+                    historical data. You can view all past elections and their
+                    complete results in the{" "}
+                    <a
+                      href="/admin/history"
+                      className="underline hover:no-underline"
+                      style={{
+                        color: "var(--clr-primary)",
+                      }}
+                    >
+                      Election History
+                    </a>{" "}
+                    section. To start a new election, use the "New Election"
+                    button above.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -1134,9 +1235,9 @@ const ManageElection = () => {
                     }"? Make sure all candidates and voters are registered.`
                   : showConfirmModal === "end"
                   ? "Are you sure you want to end the election? This action cannot be undone and results will be finalized."
-                  : `Are you sure you want to reset the election? This will clear all candidates, voters, and votes. The new election will be named "${
+                  : `Are you sure you want to reset the election? This will archive the current election data and clear all candidates, voters, and votes to start fresh. The new election will be named "${
                       electionName.trim() || "New Election 2025"
-                    }".`}
+                    }". Previous election data will be preserved in the election history.`}
               </p>
               <div className="flex space-x-4">
                 <button

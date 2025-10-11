@@ -21,6 +21,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ManageCandidates from "./pages/ManageCandidates";
 import ManageVoters from "./pages/ManageVoters";
 import ManageElection from "./pages/ManageElection";
+import ElectionHistory from "./pages/ElectionHistory";
 import VoterDashboard from "./pages/VoterDashboard";
 import CastVote from "./pages/CastVote";
 import ViewResults from "./pages/ViewResults";
@@ -78,6 +79,14 @@ const App = () => {
                 element={
                   <AdminRoute>
                     <ManageElection />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/history"
+                element={
+                  <AdminRoute>
+                    <ElectionHistory />
                   </AdminRoute>
                 }
               />

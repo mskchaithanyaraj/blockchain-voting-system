@@ -1,10 +1,115 @@
 const blockchainService = require("../services/blockchain.service");
-const { User } = require("../models");
+const { User, ElectionHistory } = require("../models");
 
 /**
  * Admin Controller
  * Handles admin actions: add candidate, register voters, start/end election, get candidates/results
  */
+
+// Helper function to archive current election data
+const archiveCurrentElection = async (archivedBy = "admin") => {
+  try {
+    console.log("🔄 Checking if election data needs backup...");
+    const electionState = await blockchainService.getElectionState();
+    const candidates = await blockchainService.getAllCandidates();
+
+    // Only backup if there was actually an election (stateNumber = 2 means ended)
+    if (electionState.stateNumber === 2 && electionState.totalVotes > 0) {
+      // Check if this election is already archived
+      const existingArchive = await ElectionHistory.findOne({
+        electionName: electionState.name,
+        startTime: new Date(electionState.startTime * 1000),
+        endTime: new Date(electionState.endTime * 1000),
+      });
+
+      if (existingArchive) {
+        console.log(
+          `⚠️  Election already archived as Election #${existingArchive.electionNumber}`
+        );
+        return {
+          archived: false,
+          alreadyExists: true,
+          electionNumber: existingArchive.electionNumber,
+        };
+      }
+
+      console.log("📦 Backing up current election data...");
+
+      // Get next election number
+      const electionNumber = await ElectionHistory.getNextElectionNumber();
+
+      // Determine winner
+      const getWinner = () => {
+        if (candidates.length === 0) return null;
+
+        // Find the highest vote count
+        const maxVotes = Math.max(
+          ...candidates.map((candidate) => candidate.voteCount)
+        );
+
+        // Find all candidates with the highest vote count
+        const winnersWithMaxVotes = candidates.filter(
+          (candidate) => candidate.voteCount === maxVotes
+        );
+
+        // If multiple candidates have the same highest votes, it's a draw
+        if (winnersWithMaxVotes.length > 1 && maxVotes > 0) {
+          return {
+            isDraw: true,
+            candidates: winnersWithMaxVotes,
+            voteCount: maxVotes,
+          };
+        }
+
+        // If there's a clear winner or no votes at all
+        return winnersWithMaxVotes.length > 0 ? winnersWithMaxVotes[0] : null;
+      };
+
+      const winner = getWinner();
+
+      // Calculate voter turnout
+      const voterTurnout =
+        electionState.registeredVoterCount > 0
+          ? Math.round(
+              (electionState.totalVotes / electionState.registeredVoterCount) *
+                100
+            )
+          : 0;
+
+      // Create historical record
+      const electionHistory = new ElectionHistory({
+        electionName: electionState.name,
+        electionNumber,
+        startTime: new Date(electionState.startTime * 1000), // Convert from Unix timestamp
+        endTime: new Date(electionState.endTime * 1000),
+        totalVotes: electionState.totalVotes,
+        totalCandidates: candidates.length,
+        totalRegisteredVoters: electionState.registeredVoterCount,
+        voterTurnout,
+        candidates: candidates.map((candidate) => ({
+          id: candidate.id,
+          name: candidate.name,
+          party: candidate.party,
+          voteCount: candidate.voteCount,
+        })),
+        winner: winner || { isDraw: false, candidates: [], voteCount: 0 },
+        archivedBy,
+      });
+
+      await electionHistory.save();
+      console.log(`✅ Election data backed up as Election #${electionNumber}`);
+      return { archived: true, electionNumber };
+    }
+
+    console.log(
+      "ℹ️  No election data to archive (election not ended or no votes cast)"
+    );
+    return { archived: false };
+  } catch (error) {
+    console.error("Error archiving election data:", error);
+    throw error;
+  }
+};
 
 // Add a new candidate
 exports.addCandidate = async (req, res) => {
@@ -128,12 +233,43 @@ exports.startElection = async (req, res) => {
 // End the election
 exports.endElection = async (req, res) => {
   try {
+    // First end the election on blockchain
     const tx = await blockchainService.endElection();
-    return res.status(200).json({
-      success: true,
-      message: "Election ended successfully",
-      data: tx,
-    });
+
+    // Then automatically archive the election data
+    try {
+      const archiveResult = await archiveCurrentElection(
+        req.user?.ethAddress || "admin"
+      );
+
+      let message;
+      if (archiveResult.archived) {
+        message = `Election ended successfully and archived as Election #${archiveResult.electionNumber}`;
+      } else if (archiveResult.alreadyExists) {
+        message = `Election ended successfully (already archived as Election #${archiveResult.electionNumber})`;
+      } else {
+        message = "Election ended successfully";
+      }
+
+      return res.status(200).json({
+        success: true,
+        message,
+        data: {
+          ...tx,
+          archived: archiveResult.archived || archiveResult.alreadyExists,
+          electionNumber: archiveResult.electionNumber,
+        },
+      });
+    } catch (archiveError) {
+      console.error("Failed to archive election data:", archiveError);
+      // Election ended successfully, but archiving failed - still return success
+      return res.status(200).json({
+        success: true,
+        message: "Election ended successfully, but failed to archive data",
+        data: tx,
+        warning: "Archive failed: " + archiveError.message,
+      });
+    }
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -143,7 +279,7 @@ exports.endElection = async (req, res) => {
   }
 };
 
-// Reset the election
+// Reset the election (with historical backup)
 exports.resetElection = async (req, res) => {
   try {
     const { electionName } = req.body;
@@ -155,13 +291,42 @@ exports.resetElection = async (req, res) => {
       });
     }
 
+    // Archive current election data if it exists (only if not already archived)
+    let archiveResult = { archived: false };
+    try {
+      archiveResult = await archiveCurrentElection(
+        req.user?.ethAddress || "admin"
+      );
+    } catch (archiveError) {
+      console.error(
+        "Failed to archive election data during reset:",
+        archiveError
+      );
+      // Continue with reset even if archiving fails
+    }
+
+    // Now reset the blockchain
     const tx = await blockchainService.resetElection(electionName.trim());
+
+    // Also reset user registration status in database
+    await User.updateMany({}, { isRegistered: false });
+    console.log("✅ Reset user registration status in database");
+
     return res.status(200).json({
       success: true,
-      message: "Election reset successfully",
-      data: tx,
+      message: archiveResult.archived
+        ? `Election reset successfully. Previous election data has been archived as Election #${archiveResult.electionNumber}.`
+        : archiveResult.alreadyExists
+        ? `Election reset successfully. Previous election data was already archived as Election #${archiveResult.electionNumber}.`
+        : "Election reset successfully.",
+      data: {
+        ...tx,
+        archived: archiveResult.archived || archiveResult.alreadyExists,
+        electionNumber: archiveResult.electionNumber,
+      },
     });
   } catch (error) {
+    console.error("Reset election error:", error);
     return res.status(500).json({
       success: false,
       error: "ResetElectionFailed",
@@ -219,6 +384,117 @@ exports.getElectionStats = async (req, res) => {
     return res.status(500).json({
       success: false,
       error: "GetElectionStatsFailed",
+      message: error.message,
+    });
+  }
+};
+
+// Get election history (all past elections)
+exports.getElectionHistory = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, sort = "-electionNumber" } = req.query;
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      sort: sort,
+      lean: true,
+    };
+
+    // Use aggregation for better performance
+    const elections = await ElectionHistory.find({}, null, {
+      sort: { electionNumber: -1 },
+      limit: parseInt(limit),
+      skip: (parseInt(page) - 1) * parseInt(limit),
+    });
+
+    const totalElections = await ElectionHistory.countDocuments();
+    const electionStats = await ElectionHistory.getElectionStats();
+
+    return res.status(200).json({
+      success: true,
+      message: "Fetched election history",
+      data: {
+        elections,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages: Math.ceil(totalElections / parseInt(limit)),
+          totalElections,
+          hasNext: parseInt(page) * parseInt(limit) < totalElections,
+          hasPrev: parseInt(page) > 1,
+        },
+        statistics: electionStats,
+      },
+    });
+  } catch (error) {
+    console.error("Get election history error:", error);
+    return res.status(500).json({
+      success: false,
+      error: "GetElectionHistoryFailed",
+      message: error.message,
+    });
+  }
+};
+
+// Get specific election details from history
+exports.getElectionById = async (req, res) => {
+  try {
+    const { electionNumber } = req.params;
+
+    const election = await ElectionHistory.findOne({
+      electionNumber: parseInt(electionNumber),
+    });
+
+    if (!election) {
+      return res.status(404).json({
+        success: false,
+        error: "ElectionNotFound",
+        message: `Election #${electionNumber} not found in history`,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Fetched election details",
+      data: election,
+    });
+  } catch (error) {
+    console.error("Get election by ID error:", error);
+    return res.status(500).json({
+      success: false,
+      error: "GetElectionByIdFailed",
+      message: error.message,
+    });
+  }
+};
+
+// Delete election from history (admin only - dangerous operation)
+exports.deleteElectionHistory = async (req, res) => {
+  try {
+    const { electionNumber } = req.params;
+
+    const deletedElection = await ElectionHistory.findOneAndDelete({
+      electionNumber: parseInt(electionNumber),
+    });
+
+    if (!deletedElection) {
+      return res.status(404).json({
+        success: false,
+        error: "ElectionNotFound",
+        message: `Election #${electionNumber} not found in history`,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Election #${electionNumber} deleted from history`,
+      data: deletedElection,
+    });
+  } catch (error) {
+    console.error("Delete election history error:", error);
+    return res.status(500).json({
+      success: false,
+      error: "DeleteElectionHistoryFailed",
       message: error.message,
     });
   }
