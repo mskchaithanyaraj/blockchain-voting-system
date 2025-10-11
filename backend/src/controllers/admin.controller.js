@@ -61,8 +61,17 @@ const archiveCurrentElection = async (archivedBy = "admin") => {
           };
         }
 
-        // If there's a clear winner or no votes at all
-        return winnersWithMaxVotes.length > 0 ? winnersWithMaxVotes[0] : null;
+        // If there's a clear winner, return it in the same structure
+        if (winnersWithMaxVotes.length === 1 && maxVotes > 0) {
+          return {
+            isDraw: false,
+            candidates: winnersWithMaxVotes,
+            voteCount: maxVotes,
+          };
+        }
+
+        // No votes cast
+        return null;
       };
 
       const winner = getWinner();

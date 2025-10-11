@@ -570,8 +570,12 @@ const ElectionHistory = () => {
                                 color: "var(--clr-text-primary)",
                               }}
                             >
-                              Winner: {election.winner.name} (
-                              {election.winner.voteCount} votes)
+                              Winner:{" "}
+                              {election.winner.candidates &&
+                              election.winner.candidates.length > 0
+                                ? `${election.winner.candidates[0].name} (${election.winner.candidates[0].party})`
+                                : "Unknown"}{" "}
+                              ({election.winner.voteCount} votes)
                             </span>
                           </div>
                         ) : (
@@ -826,7 +830,10 @@ const ElectionHistory = () => {
                                   color: "var(--clr-text-primary)",
                                 }}
                               >
-                                {selectedElection.winner.name}
+                                {selectedElection.winner.candidates &&
+                                selectedElection.winner.candidates.length > 0
+                                  ? selectedElection.winner.candidates[0].name
+                                  : "Unknown"}
                               </p>
                               <p
                                 className="text-lg"
@@ -834,7 +841,10 @@ const ElectionHistory = () => {
                                   color: "var(--clr-text-secondary)",
                                 }}
                               >
-                                {selectedElection.winner.party}
+                                {selectedElection.winner.candidates &&
+                                selectedElection.winner.candidates.length > 0
+                                  ? selectedElection.winner.candidates[0].party
+                                  : "Unknown"}
                               </p>
                             </div>
                             <div className="text-right">
