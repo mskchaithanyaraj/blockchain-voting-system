@@ -1,4 +1,13 @@
 import { useState, useEffect } from "react";
+import {
+  CheckCircle,
+  XCircle,
+  Wallet,
+  Vote,
+  Info,
+  ExternalLink,
+  Loader2,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import * as apiService from "../services/api.service";
 import * as web3Provider from "../web3/web3Provider";
@@ -193,47 +202,76 @@ const CastVote = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div
+        className="flex items-center justify-center min-h-screen"
+        style={{
+          backgroundColor: "var(--clr-background-primary)",
+        }}
+      >
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <div
+            className="animate-spin rounded-full h-16 w-16 mx-auto mb-4"
+            style={{
+              border: "4px solid var(--clr-surface-primary)",
+              borderTop: "4px solid var(--clr-text-primary)",
+            }}
+          ></div>
+          <p style={{ color: "var(--clr-text-secondary)" }}>Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+    <div
+      className="min-h-screen py-8 px-4 sm:px-6 lg:px-8"
+      style={{
+        backgroundColor: "var(--clr-background-primary)",
+      }}
+    >
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1
+            className="text-4xl font-bold mb-2"
+            style={{
+              color: "var(--clr-text-primary)",
+            }}
+          >
             Cast Your Vote
           </h1>
-          <p className="text-gray-600">
+          <p style={{ color: "var(--clr-text-secondary)" }}>
             Select your preferred candidate and submit your vote
           </p>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+          <div
+            className="mb-6 rounded-lg p-4 border"
+            style={{
+              backgroundColor: "var(--clr-error-surface)",
+              borderColor: "var(--clr-error-border)",
+            }}
+          >
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg
-                  className="h-5 w-5 text-red-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <XCircle
+                  className="h-5 w-5"
+                  style={{
+                    color: "var(--clr-error-text)",
+                  }}
+                />
               </div>
               <div className="ml-3">
-                <p className="text-sm text-red-800">{error}</p>
+                <p
+                  className="text-sm"
+                  style={{
+                    color: "var(--clr-error-text)",
+                  }}
+                >
+                  {error}
+                </p>
               </div>
             </div>
           </div>
@@ -241,30 +279,40 @@ const CastVote = () => {
 
         {/* Success Message */}
         {success && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+          <div
+            className="mb-6 rounded-lg p-4 border"
+            style={{
+              backgroundColor: "var(--clr-success-surface)",
+              borderColor: "var(--clr-success-border)",
+            }}
+          >
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg
-                  className="h-5 w-5 text-green-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <CheckCircle
+                  className="h-5 w-5"
+                  style={{
+                    color: "var(--clr-success-text)",
+                  }}
+                />
               </div>
               <div className="ml-3">
-                <p className="text-sm text-green-800">{success}</p>
+                <p
+                  className="text-sm"
+                  style={{
+                    color: "var(--clr-success-text)",
+                  }}
+                >
+                  {success}
+                </p>
                 {txHash && (
                   <a
                     href={`https://etherscan.io/tx/${txHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-green-900 underline font-semibold"
+                    className="text-sm underline font-semibold flex items-center mt-1"
+                    style={{ color: "var(--clr-success-text)" }}
                   >
+                    <ExternalLink className="w-3 h-3 mr-1" />
                     View on Block Explorer
                   </a>
                 )}
@@ -274,45 +322,79 @@ const CastVote = () => {
         )}
 
         {/* Wallet Connection */}
-        <div className="mb-6 bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">
+        <div
+          className="mb-6 rounded-lg shadow-md p-6"
+          style={{
+            backgroundColor: "var(--clr-surface-secondary)",
+          }}
+        >
+          <h3
+            className="text-xl font-bold mb-4"
+            style={{
+              color: "var(--clr-text-primary)",
+            }}
+          >
             Step 1: Connect Wallet
           </h3>
           {!web3Provider.isMetaMaskInstalled() ? (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <p className="text-sm text-yellow-800 mb-2">
+            <div
+              className="rounded-lg p-4 border"
+              style={{
+                backgroundColor: "var(--clr-warning-surface)",
+                borderColor: "var(--clr-warning-border)",
+              }}
+            >
+              <p
+                className="text-sm mb-2"
+                style={{
+                  color: "var(--clr-warning-text)",
+                }}
+              >
                 MetaMask is not installed. Please install MetaMask to vote.
               </p>
               <a
                 href="https://metamask.io/download/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-yellow-900 underline font-semibold"
+                className="text-sm underline font-semibold flex items-center"
+                style={{ color: "var(--clr-warning-text)" }}
               >
+                <ExternalLink className="w-3 h-3 mr-1" />
                 Download MetaMask
               </a>
             </div>
           ) : walletConnected ? (
-            <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-4">
+            <div
+              className="flex items-center justify-between rounded-lg p-4 border"
+              style={{
+                backgroundColor: "var(--clr-success-surface)",
+                borderColor: "var(--clr-success-border)",
+              }}
+            >
               <div className="flex items-center space-x-3">
-                <div className="bg-green-100 rounded-full p-2">
-                  <svg
-                    className="w-6 h-6 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
+                <div
+                  className="rounded-full p-2"
+                  style={{
+                    backgroundColor: "var(--clr-success-primary)",
+                  }}
+                >
+                  <CheckCircle className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Connected Address</p>
-                  <p className="font-mono text-sm font-semibold text-gray-900">
+                  <p
+                    className="text-sm"
+                    style={{
+                      color: "var(--clr-text-tertiary)",
+                    }}
+                  >
+                    Connected Address
+                  </p>
+                  <p
+                    className="font-mono text-sm font-semibold"
+                    style={{
+                      color: "var(--clr-text-primary)",
+                    }}
+                  >
                     {walletAddress
                       ? `${walletAddress.slice(0, 10)}...${walletAddress.slice(
                           -8
@@ -321,39 +403,84 @@ const CastVote = () => {
                   </p>
                 </div>
               </div>
-              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+              <span
+                className="px-3 py-1 rounded-full text-sm font-semibold"
+                style={{
+                  backgroundColor: "var(--clr-success-primary)",
+                  color: "white",
+                }}
+              >
                 Connected
               </span>
             </div>
           ) : (
             <button
               onClick={handleConnectWallet}
-              className="w-full bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition duration-200 font-semibold"
+              className="w-full px-6 py-3 rounded-lg transition duration-200 font-semibold flex items-center justify-center"
+              style={{
+                backgroundColor: "var(--clr-primary-a10)",
+                color: "var(--clr-text-inverse)",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.opacity = "0.9";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.opacity = "1";
+              }}
             >
+              <Wallet className="w-5 h-5 mr-2" />
               Connect MetaMask
             </button>
           )}
         </div>
 
         {/* Candidate Selection */}
-        <div className="mb-6 bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">
+        <div
+          className="mb-6 rounded-lg shadow-md p-6"
+          style={{
+            backgroundColor: "var(--clr-surface-secondary)",
+          }}
+        >
+          <h3
+            className="text-xl font-bold mb-4"
+            style={{
+              color: "var(--clr-text-primary)",
+            }}
+          >
             Step 2: Select Candidate
           </h3>
           {candidates.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-600">No candidates available</p>
+              <p style={{ color: "var(--clr-text-secondary)" }}>
+                No candidates available
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
               {candidates.map((candidate) => (
                 <label
                   key={candidate.id}
-                  className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition duration-200 ${
-                    selectedCandidateId === candidate.id
-                      ? "border-green-600 bg-green-50"
-                      : "border-gray-200 hover:border-green-300"
-                  }`}
+                  className="flex items-center p-4 border-2 rounded-lg cursor-pointer transition duration-200"
+                  style={{
+                    borderColor:
+                      selectedCandidateId === candidate.id
+                        ? "var(--clr-success-primary)"
+                        : "var(--clr-surface-a20)",
+                    backgroundColor:
+                      selectedCandidateId === candidate.id
+                        ? "var(--clr-success-surface)"
+                        : "var(--clr-surface-a10)",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedCandidateId !== candidate.id) {
+                      e.target.style.borderColor = "var(--clr-surface-a30)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedCandidateId !== candidate.id) {
+                      e.target.style.borderColor = "var(--clr-surface-a20)";
+                    }
+                  }}
                 >
                   <input
                     type="radio"
@@ -361,20 +488,42 @@ const CastVote = () => {
                     value={candidate.id}
                     checked={selectedCandidateId === candidate.id}
                     onChange={() => setSelectedCandidateId(candidate.id)}
-                    className="h-5 w-5 text-green-600 focus:ring-green-500"
+                    className="h-5 w-5 focus:ring-2"
+                    style={{
+                      accentColor: "var(--clr-success-primary)",
+                    }}
                     disabled={voterStatus.hasVoted || electionState !== 1}
                   />
                   <div className="ml-4 flex-1">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-lg font-bold text-gray-900">
+                        <p
+                          className="text-lg font-bold"
+                          style={{
+                            color: "var(--clr-text-primary)",
+                          }}
+                        >
                           {candidate.name}
                         </p>
-                        <p className="text-gray-600">{candidate.party}</p>
+                        <p style={{ color: "var(--clr-text-secondary)" }}>
+                          {candidate.party}
+                        </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-gray-500">Candidate ID</p>
-                        <p className="text-lg font-semibold text-gray-900">
+                        <p
+                          className="text-sm"
+                          style={{
+                            color: "var(--clr-text-tertiary)",
+                          }}
+                        >
+                          Candidate ID
+                        </p>
+                        <p
+                          className="text-lg font-semibold"
+                          style={{
+                            color: "var(--clr-text-primary)",
+                          }}
+                        >
                           #{candidate.id}
                         </p>
                       </div>
@@ -387,73 +536,104 @@ const CastVote = () => {
         </div>
 
         {/* Vote Button */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">
+        <div
+          className="rounded-lg shadow-md p-6"
+          style={{
+            backgroundColor: "var(--clr-surface-secondary)",
+          }}
+        >
+          <h3
+            className="text-xl font-bold mb-4"
+            style={{
+              color: "var(--clr-text-primary)",
+            }}
+          >
             Step 3: Submit Vote
           </h3>
           <button
             onClick={handleVote}
             disabled={!canVote() || voting}
-            className={`w-full py-4 px-6 rounded-lg font-bold text-lg transition duration-200 ${
-              canVote() && !voting
-                ? "bg-green-600 text-white hover:bg-green-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
+            className="w-full py-4 px-6 rounded-lg font-bold text-lg transition duration-200 flex items-center justify-center"
+            style={{
+              backgroundColor:
+                canVote() && !voting
+                  ? "var(--clr-success-primary)"
+                  : "var(--clr-surface-a40)",
+              color:
+                canVote() && !voting
+                  ? "var(--clr-text-inverse)"
+                  : "var(--clr-text-tertiary)",
+              cursor: canVote() && !voting ? "pointer" : "not-allowed",
+            }}
+            onMouseEnter={(e) => {
+              if (canVote() && !voting) {
+                e.target.style.opacity = "0.9";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (canVote() && !voting) {
+                e.target.style.opacity = "1";
+              }
+            }}
           >
             {voting ? (
               <span className="flex items-center justify-center">
-                <svg className="animate-spin h-6 w-6 mr-3" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
+                <Loader2 className="animate-spin h-6 w-6 mr-3" />
                 Submitting Vote...
               </span>
             ) : (
-              "Cast Vote"
+              <span className="flex items-center justify-center">
+                <Vote className="h-6 w-6 mr-3" />
+                Cast Vote
+              </span>
             )}
           </button>
           {!canVote() && (
-            <p className="mt-3 text-sm text-center text-gray-600">
+            <p
+              className="mt-3 text-sm text-center"
+              style={{
+                color: "var(--clr-text-secondary)",
+              }}
+            >
               {getDisabledReason()}
             </p>
           )}
           {voting && (
-            <p className="mt-3 text-sm text-center text-gray-600">
+            <p
+              className="mt-3 text-sm text-center"
+              style={{
+                color: "var(--clr-text-secondary)",
+              }}
+            >
               Please confirm the transaction in MetaMask...
             </p>
           )}
         </div>
 
         {/* Information Box */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div
+          className="mt-6 rounded-lg p-4 border"
+          style={{
+            backgroundColor: "rgba(33, 73, 138, 0.1)",
+            borderColor: "rgba(33, 73, 138, 0.2)",
+          }}
+        >
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg
-                className="h-5 w-5 text-blue-400"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <Info
+                className="h-5 w-5"
+                style={{
+                  color: "var(--clr-info-a0)",
+                }}
+              />
             </div>
             <div className="ml-3">
-              <p className="text-sm text-blue-800">
+              <p
+                className="text-sm"
+                style={{
+                  color: "var(--clr-info-a0)",
+                }}
+              >
                 <strong>Note:</strong> Your vote is recorded on the blockchain
                 and cannot be changed once submitted. Make sure you have
                 selected the correct candidate before voting.

@@ -1,4 +1,15 @@
 import { useState, useEffect } from "react";
+import {
+  Trophy,
+  Vote,
+  Users,
+  CheckCircle,
+  RefreshCw,
+  XCircle,
+  AlertTriangle,
+  BarChart3,
+  Loader2,
+} from "lucide-react";
 import * as apiService from "../services/api.service";
 
 /**
@@ -73,10 +84,23 @@ const ViewResults = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div
+        className="flex items-center justify-center min-h-screen"
+        style={{
+          backgroundColor: "var(--clr-background-primary)",
+        }}
+      >
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading results...</p>
+          <div
+            className="animate-spin rounded-full h-16 w-16 mx-auto mb-4"
+            style={{
+              border: "4px solid var(--clr-surface-primary)",
+              borderTop: "4px solid var(--clr-text-primary)",
+            }}
+          ></div>
+          <p style={{ color: "var(--clr-text-secondary)" }}>
+            Loading results...
+          </p>
         </div>
       </div>
     );
@@ -84,36 +108,60 @@ const ViewResults = () => {
 
   if (electionState !== 2) {
     return (
-      <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+      <div
+        className="min-h-screen py-8 px-4 sm:px-6 lg:px-8"
+        style={{
+          backgroundColor: "var(--clr-background-primary)",
+        }}
+      >
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
+          <div
+            className="rounded-lg shadow-md p-8 text-center"
+            style={{
+              backgroundColor: "var(--clr-surface-secondary)",
+            }}
+          >
             <div className="mb-6">
-              <svg
-                className="mx-auto h-24 w-24 text-yellow-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
+              <AlertTriangle
+                className="mx-auto h-24 w-24"
+                style={{
+                  color: "var(--clr-warning-primary)",
+                }}
+              />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2
+              className="text-3xl font-bold mb-4"
+              style={{
+                color: "var(--clr-text-primary)",
+              }}
+            >
               Results Not Available
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p
+              className="mb-6"
+              style={{
+                color: "var(--clr-text-secondary)",
+              }}
+            >
               {electionState === 0
                 ? "The election has not started yet. Results will be available after the election ends."
                 : "The election is currently active. Results will be available after the election ends."}
             </p>
             <button
               onClick={fetchResults}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-200 font-semibold"
+              className="px-6 py-3 rounded-lg transition duration-200 font-semibold flex items-center mx-auto"
+              style={{
+                backgroundColor: "var(--clr-primary-a10)",
+                color: "var(--clr-text-inverse)",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.opacity = "0.9";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.opacity = "1";
+              }}
             >
+              <RefreshCw className="w-5 h-5 mr-2" />
               Refresh Status
             </button>
           </div>
@@ -124,29 +172,59 @@ const ViewResults = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+      <div
+        className="min-h-screen py-8 px-4 sm:px-6 lg:px-8"
+        style={{
+          backgroundColor: "var(--clr-background-primary)",
+        }}
+      >
         <div className="max-w-4xl mx-auto">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <div
+            className="rounded-lg p-6 border"
+            style={{
+              backgroundColor: "var(--clr-error-surface)",
+              borderColor: "var(--clr-error-border)",
+            }}
+          >
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg
-                  className="h-6 w-6 text-red-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <XCircle
+                  className="h-6 w-6"
+                  style={{
+                    color: "var(--clr-error-text)",
+                  }}
+                />
               </div>
               <div className="ml-3">
-                <h3 className="text-lg font-medium text-red-800">Error</h3>
-                <p className="mt-2 text-sm text-red-700">{error}</p>
+                <h3
+                  className="text-lg font-medium"
+                  style={{
+                    color: "var(--clr-error-text)",
+                  }}
+                >
+                  Error
+                </h3>
+                <p
+                  className="mt-2 text-sm"
+                  style={{
+                    color: "var(--clr-error-text)",
+                  }}
+                >
+                  {error}
+                </p>
                 <button
                   onClick={fetchResults}
-                  className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-200"
+                  className="mt-4 px-4 py-2 rounded transition duration-200"
+                  style={{
+                    backgroundColor: "var(--clr-error-primary)",
+                    color: "var(--clr-text-inverse)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.opacity = "0.9";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.opacity = "1";
+                  }}
                 >
                   Try Again
                 </button>
@@ -161,37 +239,76 @@ const ViewResults = () => {
   const winner = getWinner();
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+    <div
+      className="min-h-screen py-8 px-4 sm:px-6 lg:px-8"
+      style={{
+        backgroundColor: "var(--clr-background-primary)",
+      }}
+    >
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1
+            className="text-4xl font-bold mb-2"
+            style={{
+              color: "var(--clr-text-primary)",
+            }}
+          >
             Election Results
           </h1>
-          <p className="text-gray-600">{electionName}</p>
+          <p style={{ color: "var(--clr-text-secondary)" }}>{electionName}</p>
         </div>
 
         {/* Winner Announcement */}
         {winner && (
-          <div className="mb-8 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 rounded-lg shadow-lg p-8 text-white">
+          <div
+            className="mb-8 rounded-lg shadow-lg p-8 border-2"
+            style={{
+              backgroundColor: "var(--clr-surface-a20)",
+              borderColor: "var(--clr-surface-a40)",
+              background:
+                "linear-gradient(135deg, var(--clr-surface-a20) 0%, var(--clr-surface-a30) 100%)",
+            }}
+          >
             <div className="flex items-center justify-center mb-4">
-              <svg
+              <Trophy
                 className="w-16 h-16"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
+                style={{
+                  color: "var(--clr-text-primary)",
+                }}
+              />
             </div>
-            <h2 className="text-center text-3xl font-bold mb-2">
-              🏆 Winner 🏆
+            <h2
+              className="text-center text-3xl font-bold mb-2"
+              style={{
+                color: "var(--clr-text-primary)",
+              }}
+            >
+              Winner
             </h2>
-            <p className="text-center text-4xl font-extrabold mb-2">
+            <p
+              className="text-center text-4xl font-extrabold mb-2"
+              style={{
+                color: "var(--clr-text-primary)",
+              }}
+            >
               {winner.name}
             </p>
-            <p className="text-center text-2xl mb-4">{winner.party}</p>
+            <p
+              className="text-center text-2xl mb-4"
+              style={{
+                color: "var(--clr-text-secondary)",
+              }}
+            >
+              {winner.party}
+            </p>
             <div className="text-center">
-              <p className="text-xl">
+              <p
+                className="text-xl"
+                style={{
+                  color: "var(--clr-text-primary)",
+                }}
+              >
                 <span className="font-bold">{winner.voteCount}</span> votes
                 <span className="mx-2">•</span>
                 <span className="font-bold">
@@ -205,124 +322,181 @@ const ViewResults = () => {
 
         {/* Statistics */}
         <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div
+            className="rounded-lg shadow-md p-6"
+            style={{
+              backgroundColor: "var(--clr-surface-secondary)",
+            }}
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Total Votes</p>
-                <p className="text-3xl font-bold text-gray-900">{totalVotes}</p>
-              </div>
-              <div className="bg-blue-100 rounded-full p-3">
-                <svg
-                  className="w-8 h-8 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                <p
+                  className="text-sm"
+                  style={{
+                    color: "var(--clr-text-tertiary)",
+                  }}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  />
-                </svg>
+                  Total Votes
+                </p>
+                <p
+                  className="text-3xl font-bold"
+                  style={{
+                    color: "var(--clr-text-primary)",
+                  }}
+                >
+                  {totalVotes}
+                </p>
+              </div>
+              <div
+                className="rounded-full p-3"
+                style={{
+                  backgroundColor: "var(--clr-surface-a30)",
+                }}
+              >
+                <Vote
+                  className="w-8 h-8"
+                  style={{
+                    color: "var(--clr-text-primary)",
+                  }}
+                />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div
+            className="rounded-lg shadow-md p-6"
+            style={{
+              backgroundColor: "var(--clr-surface-secondary)",
+            }}
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Total Candidates</p>
-                <p className="text-3xl font-bold text-gray-900">
+                <p
+                  className="text-sm"
+                  style={{
+                    color: "var(--clr-text-tertiary)",
+                  }}
+                >
+                  Total Candidates
+                </p>
+                <p
+                  className="text-3xl font-bold"
+                  style={{
+                    color: "var(--clr-text-primary)",
+                  }}
+                >
                   {results.length}
                 </p>
               </div>
-              <div className="bg-purple-100 rounded-full p-3">
-                <svg
-                  className="w-8 h-8 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
+              <div
+                className="rounded-full p-3"
+                style={{
+                  backgroundColor: "var(--clr-surface-a30)",
+                }}
+              >
+                <Users
+                  className="w-8 h-8"
+                  style={{
+                    color: "var(--clr-text-primary)",
+                  }}
+                />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div
+            className="rounded-lg shadow-md p-6"
+            style={{
+              backgroundColor: "var(--clr-surface-secondary)",
+            }}
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Election Status</p>
-                <p className="text-xl font-bold text-green-600">Ended</p>
-              </div>
-              <div className="bg-green-100 rounded-full p-3">
-                <svg
-                  className="w-8 h-8 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                <p
+                  className="text-sm"
+                  style={{
+                    color: "var(--clr-text-tertiary)",
+                  }}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
+                  Election Status
+                </p>
+                <p
+                  className="text-xl font-bold"
+                  style={{
+                    color: "var(--clr-success-primary)",
+                  }}
+                >
+                  Ended
+                </p>
+              </div>
+              <div
+                className="rounded-full p-3"
+                style={{
+                  backgroundColor: "var(--clr-success-surface)",
+                }}
+              >
+                <CheckCircle
+                  className="w-8 h-8"
+                  style={{
+                    color: "var(--clr-success-primary)",
+                  }}
+                />
               </div>
             </div>
           </div>
         </div>
 
         {/* Results List */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div
+          className="rounded-lg shadow-md p-6"
+          style={{
+            backgroundColor: "var(--clr-surface-secondary)",
+          }}
+        >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2
+              className="text-2xl font-bold"
+              style={{
+                color: "var(--clr-text-primary)",
+              }}
+            >
               Detailed Results
             </h2>
             <button
               onClick={fetchResults}
-              className="flex items-center space-x-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200"
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg transition duration-200"
+              style={{
+                backgroundColor: "var(--clr-surface-a30)",
+                color: "var(--clr-text-primary)",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = "var(--clr-surface-a40)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "var(--clr-surface-a30)";
+              }}
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
-              </svg>
+              <RefreshCw className="w-5 h-5" />
               <span>Refresh</span>
             </button>
           </div>
 
           {results.length === 0 ? (
             <div className="text-center py-12">
-              <svg
-                className="mx-auto h-16 w-16 text-gray-400 mb-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              <BarChart3
+                className="mx-auto h-16 w-16 mb-4"
+                style={{
+                  color: "var(--clr-text-tertiary)",
+                }}
+              />
+              <p
+                className="text-lg"
+                style={{
+                  color: "var(--clr-text-secondary)",
+                }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                />
-              </svg>
-              <p className="text-gray-600 text-lg">No votes were cast</p>
+                No votes were cast
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -334,33 +508,69 @@ const ViewResults = () => {
                 return (
                   <div
                     key={candidate.id}
-                    className={`border-2 rounded-lg p-6 transition duration-200 ${
-                      isWinner
-                        ? "border-yellow-400 bg-yellow-50"
-                        : "border-gray-200 hover:border-blue-300"
-                    }`}
+                    className="border-2 rounded-lg p-6 transition duration-200"
+                    style={{
+                      borderColor: isWinner
+                        ? "var(--clr-surface-a40)"
+                        : "var(--clr-surface-a20)",
+                      backgroundColor: isWinner
+                        ? "var(--clr-surface-a20)"
+                        : "var(--clr-surface-a10)",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isWinner) {
+                        e.target.style.borderColor = "var(--clr-surface-a30)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isWinner) {
+                        e.target.style.borderColor = "var(--clr-surface-a20)";
+                      }
+                    }}
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-4">
                         <div
-                          className={`text-2xl font-bold ${
-                            isWinner ? "text-yellow-600" : "text-gray-600"
-                          }`}
+                          className="text-2xl font-bold"
+                          style={{
+                            color: isWinner
+                              ? "var(--clr-text-primary)"
+                              : "var(--clr-text-secondary)",
+                          }}
                         >
                           {getRankSuffix(rank)}
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold text-gray-900">
+                          <h3
+                            className="text-xl font-bold"
+                            style={{
+                              color: "var(--clr-text-primary)",
+                            }}
+                          >
                             {candidate.name}
                           </h3>
-                          <p className="text-gray-600">{candidate.party}</p>
+                          <p style={{ color: "var(--clr-text-secondary)" }}>
+                            {candidate.party}
+                          </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-3xl font-bold text-gray-900">
+                        <p
+                          className="text-3xl font-bold"
+                          style={{
+                            color: "var(--clr-text-primary)",
+                          }}
+                        >
                           {candidate.voteCount}
                         </p>
-                        <p className="text-sm text-gray-500">votes</p>
+                        <p
+                          className="text-sm"
+                          style={{
+                            color: "var(--clr-text-tertiary)",
+                          }}
+                        >
+                          votes
+                        </p>
                       </div>
                     </div>
 
@@ -368,27 +578,45 @@ const ViewResults = () => {
                     <div className="relative pt-1">
                       <div className="flex mb-2 items-center justify-between">
                         <div>
-                          <span className="text-xs font-semibold inline-block text-blue-600">
+                          <span
+                            className="text-xs font-semibold inline-block"
+                            style={{
+                              color: "var(--clr-text-primary)",
+                            }}
+                          >
                             {percentage}%
                           </span>
                         </div>
                       </div>
-                      <div className="overflow-hidden h-3 mb-4 text-xs flex rounded-full bg-gray-200">
+                      <div
+                        className="overflow-hidden h-3 mb-4 text-xs flex rounded-full"
+                        style={{
+                          backgroundColor: "var(--clr-surface-a30)",
+                        }}
+                      >
                         <div
-                          style={{ width: `${percentage}%` }}
-                          className={`shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center transition-all duration-500 ${
-                            isWinner
-                              ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
-                              : "bg-gradient-to-r from-blue-400 to-blue-600"
-                          }`}
+                          style={{
+                            width: `${percentage}%`,
+                            backgroundColor: isWinner
+                              ? "var(--clr-surface-a50)"
+                              : "var(--clr-primary-a10)",
+                          }}
+                          className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center transition-all duration-500"
                         ></div>
                       </div>
                     </div>
 
                     {isWinner && (
                       <div className="flex items-center justify-center mt-2">
-                        <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
-                          🏆 Winner
+                        <span
+                          className="px-3 py-1 rounded-full text-sm font-semibold flex items-center"
+                          style={{
+                            backgroundColor: "var(--clr-surface-a30)",
+                            color: "var(--clr-text-primary)",
+                          }}
+                        >
+                          <Trophy className="w-4 h-4 mr-1" />
+                          Winner
                         </span>
                       </div>
                     )}
