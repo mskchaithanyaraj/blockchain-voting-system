@@ -78,7 +78,7 @@ const ManageVoters = () => {
 
       const response = await apiService.getRegisteredVoters({
         page,
-        limit: 10,
+        limit: 4,
       });
 
       const data = response.data.data;
@@ -769,9 +769,9 @@ const ManageVoters = () => {
                     className="text-sm"
                     style={{ color: "var(--clr-text-secondary)" }}
                   >
-                    Showing {(pagination.currentPage - 1) * 10 + 1} to{" "}
+                    Showing {(pagination.currentPage - 1) * 4 + 1} to{" "}
                     {Math.min(
-                      pagination.currentPage * 10,
+                      pagination.currentPage * 4,
                       pagination.totalVoters
                     )}{" "}
                     of {pagination.totalVoters} voters
