@@ -668,16 +668,19 @@ const CastVote = () => {
                 }}
                 className="mt-6 w-full py-3 px-4 rounded-full font-semibold transition duration-200 border"
                 style={{
-                  backgroundColor: "var(--clr-primary)",
-                  color: "white",
-                  borderColor: "var(--clr-primary)",
+                  backgroundColor: "var(--clr-surface-secondary)",
+                  color: "var(--clr-text-primary)",
+                  borderColor: "var(--clr-surface-a40)",
                   minHeight: "50px",
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.opacity = "0.9";
+                  e.target.style.backgroundColor = "var(--clr-surface-a20)";
+                  e.target.style.borderColor = "var(--clr-primary)";
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.opacity = "1";
+                  e.target.style.backgroundColor =
+                    "var(--clr-surface-secondary)";
+                  e.target.style.borderColor = "var(--clr-surface-a40)";
                 }}
               >
                 I Understand
