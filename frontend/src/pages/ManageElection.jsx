@@ -27,8 +27,9 @@ const ManageElection = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const [showConfirmModal, setShowConfirmModal] = useState(null); // 'start' or 'end'
+  const [showConfirmModal, setShowConfirmModal] = useState(null); // 'start', 'end', or 'reset'
   const [actionLoading, setActionLoading] = useState(false);
+  const [electionName, setElectionName] = useState(""); // For new election name input
 
   useEffect(() => {
     fetchElectionData();
@@ -78,16 +79,59 @@ const ManageElection = () => {
       setError(null);
       setSuccess(null);
 
-      await apiService.startElection();
+      // Validate prerequisites before starting election
+      if (electionState.totalCandidates === 0) {
+        setError(
+          "Cannot start election: No candidates have been added. Please add at least one candidate before starting the election."
+        );
+        setActionLoading(false);
+        return;
+      }
+
+      if (electionState.totalVoters === 0) {
+        setError(
+          "Cannot start election: No voters have been registered. Please register at least one voter before starting the election."
+        );
+        setActionLoading(false);
+        return;
+      }
+
+      const electionData = {
+        electionName: electionName.trim() || "General Election 2025",
+      };
+      await apiService.startElection(electionData);
 
       setSuccess("Election started successfully!");
       setShowConfirmModal(null);
+      setElectionName(""); // Reset input
       await fetchElectionData();
 
       setTimeout(() => setSuccess(null), 5000);
     } catch (err) {
       console.error("Error starting election:", err);
-      setError(err.message || "Failed to start election");
+
+      // Provide more specific error messages
+      let errorMessage = "Failed to start election";
+      if (err.message) {
+        if (err.message.includes("Cannot start election without candidates")) {
+          errorMessage =
+            "Cannot start election: No candidates have been added. Please add candidates first.";
+        } else if (
+          err.message.includes(
+            "Cannot start election without registered voters"
+          )
+        ) {
+          errorMessage =
+            "Cannot start election: No voters have been registered. Please register voters first.";
+        } else if (err.message.includes("Only admin can perform this action")) {
+          errorMessage =
+            "Access denied: Only the admin can start the election.";
+        } else {
+          errorMessage = err.message;
+        }
+      }
+
+      setError(errorMessage);
     } finally {
       setActionLoading(false);
     }
@@ -114,6 +158,33 @@ const ManageElection = () => {
     }
   };
 
+  const handleResetElection = async () => {
+    try {
+      setActionLoading(true);
+      setError(null);
+      setSuccess(null);
+
+      const electionData = {
+        electionName: electionName.trim() || "New Election 2025",
+      };
+      await apiService.resetElection(electionData);
+
+      setSuccess(
+        "Election reset successfully! You can now add new candidates and voters."
+      );
+      setShowConfirmModal(null);
+      setElectionName(""); // Reset input
+      await fetchElectionData();
+
+      setTimeout(() => setSuccess(null), 5000);
+    } catch (err) {
+      console.error("Error resetting election:", err);
+      setError(err.message || "Failed to reset election");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const getElectionStateText = (state) => {
     const states = {
       0: "Not Started",
@@ -134,9 +205,28 @@ const ManageElection = () => {
 
   const getWinner = () => {
     if (results.length === 0) return null;
-    return results.reduce((max, candidate) =>
-      candidate.voteCount > max.voteCount ? candidate : max
+
+    // Find the highest vote count
+    const maxVotes = Math.max(
+      ...results.map((candidate) => candidate.voteCount)
     );
+
+    // Find all candidates with the highest vote count
+    const winnersWithMaxVotes = results.filter(
+      (candidate) => candidate.voteCount === maxVotes
+    );
+
+    // If multiple candidates have the same highest votes, it's a draw
+    if (winnersWithMaxVotes.length > 1 && maxVotes > 0) {
+      return {
+        isDraw: true,
+        candidates: winnersWithMaxVotes,
+        voteCount: maxVotes,
+      };
+    }
+
+    // If there's a clear winner or no votes at all
+    return winnersWithMaxVotes.length > 0 ? winnersWithMaxVotes[0] : null;
   };
 
   if (loading) {
@@ -399,29 +489,187 @@ const ManageElection = () => {
           >
             Election Controls
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          {/* Election Readiness Status - Only show when election not started */}
+          {electionState.state === 0 && (
+            <div
+              className="mb-6 p-4 rounded-lg border"
+              style={{
+                backgroundColor:
+                  electionState.totalCandidates > 0 &&
+                  electionState.totalVoters > 0
+                    ? "var(--clr-success-surface)"
+                    : "var(--clr-warning-surface)",
+                borderColor:
+                  electionState.totalCandidates > 0 &&
+                  electionState.totalVoters > 0
+                    ? "var(--clr-success-border)"
+                    : "var(--clr-warning-border)",
+              }}
+            >
+              <h3
+                className="font-semibold mb-3"
+                style={{
+                  color:
+                    electionState.totalCandidates > 0 &&
+                    electionState.totalVoters > 0
+                      ? "var(--clr-success-text)"
+                      : "var(--clr-warning-text)",
+                }}
+              >
+                Election Readiness Status
+              </h3>
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  {electionState.totalCandidates > 0 ? (
+                    <CheckCircle
+                      className="w-5 h-5 mr-2"
+                      style={{ color: "var(--clr-success-text)" }}
+                    />
+                  ) : (
+                    <XCircle
+                      className="w-5 h-5 mr-2"
+                      style={{ color: "var(--clr-danger-text)" }}
+                    />
+                  )}
+                  <span
+                    style={{
+                      color:
+                        electionState.totalCandidates > 0
+                          ? "var(--clr-success-text)"
+                          : "var(--clr-danger-text)",
+                    }}
+                  >
+                    {electionState.totalCandidates > 0
+                      ? `${electionState.totalCandidates} candidate(s) added`
+                      : "No candidates added - Please add at least one candidate"}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  {electionState.totalVoters > 0 ? (
+                    <CheckCircle
+                      className="w-5 h-5 mr-2"
+                      style={{ color: "var(--clr-success-text)" }}
+                    />
+                  ) : (
+                    <XCircle
+                      className="w-5 h-5 mr-2"
+                      style={{ color: "var(--clr-danger-text)" }}
+                    />
+                  )}
+                  <span
+                    style={{
+                      color:
+                        electionState.totalVoters > 0
+                          ? "var(--clr-success-text)"
+                          : "var(--clr-danger-text)",
+                    }}
+                  >
+                    {electionState.totalVoters > 0
+                      ? `${electionState.totalVoters} voter(s) registered`
+                      : "No voters registered - Please register at least one voter"}
+                  </span>
+                </div>
+              </div>
+              {(electionState.totalCandidates === 0 ||
+                electionState.totalVoters === 0) && (
+                <p
+                  className="text-sm mt-3"
+                  style={{ color: "var(--clr-warning-text)" }}
+                >
+                  <strong>Warning:</strong> You must add candidates and register
+                  voters before starting the election.
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Election Name Input (only show when not started or when ended for reset) */}
+          {(electionState.state === 0 || electionState.state === 2) && (
+            <div className="mb-6">
+              <label
+                htmlFor="electionName"
+                className="block text-sm font-medium mb-2"
+                style={{ color: "var(--clr-text-secondary)" }}
+              >
+                {electionState.state === 0
+                  ? "Election Name"
+                  : "New Election Name"}
+              </label>
+              <input
+                id="electionName"
+                type="text"
+                value={electionName}
+                onChange={(e) => setElectionName(e.target.value)}
+                placeholder={
+                  electionState.state === 0
+                    ? "Enter election name (e.g., Presidential Election 2025)"
+                    : "Enter new election name"
+                }
+                className="w-full px-4 py-3 rounded-lg border transition duration-200"
+                style={{
+                  backgroundColor: "var(--clr-surface-primary)",
+                  borderColor: "var(--clr-surface-a40)",
+                  color: "var(--clr-text-primary)",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "var(--clr-primary)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--clr-surface-a40)";
+                }}
+              />
+            </div>
+          )}
+
+          <div
+            className={`grid grid-cols-1 ${
+              electionState.state === 2 ? "md:grid-cols-3" : "md:grid-cols-2"
+            } gap-4`}
+          >
             <button
               onClick={() => setShowConfirmModal("start")}
-              disabled={electionState.state !== 0}
+              disabled={
+                electionState.state !== 0 ||
+                electionState.totalCandidates === 0 ||
+                electionState.totalVoters === 0
+              }
               className="py-4 px-6 rounded-lg font-semibold transition duration-200 flex flex-col items-center justify-center"
               style={{
                 backgroundColor:
-                  electionState.state === 0
+                  electionState.state === 0 &&
+                  electionState.totalCandidates > 0 &&
+                  electionState.totalVoters > 0
                     ? "var(--clr-success-primary)"
                     : "var(--clr-surface-a40)",
                 color:
-                  electionState.state === 0
+                  electionState.state === 0 &&
+                  electionState.totalCandidates > 0 &&
+                  electionState.totalVoters > 0
                     ? "var(--clr-text-inverse)"
                     : "var(--clr-text-tertiary)",
-                cursor: electionState.state === 0 ? "pointer" : "not-allowed",
+                cursor:
+                  electionState.state === 0 &&
+                  electionState.totalCandidates > 0 &&
+                  electionState.totalVoters > 0
+                    ? "pointer"
+                    : "not-allowed",
               }}
               onMouseEnter={(e) => {
-                if (electionState.state === 0) {
+                if (
+                  electionState.state === 0 &&
+                  electionState.totalCandidates > 0 &&
+                  electionState.totalVoters > 0
+                ) {
                   e.target.style.opacity = "0.9";
                 }
               }}
               onMouseLeave={(e) => {
-                if (electionState.state === 0) {
+                if (
+                  electionState.state === 0 &&
+                  electionState.totalCandidates > 0 &&
+                  electionState.totalVoters > 0
+                ) {
                   e.target.style.opacity = "1";
                 }
               }}
@@ -430,50 +678,110 @@ const ManageElection = () => {
                 <Play className="w-6 h-6 mr-2" />
                 Start Election
               </div>
-              {electionState.state !== 0 && (
+              {electionState.state !== 0 ? (
                 <p className="text-xs mt-2">
                   Election has already been started
                 </p>
-              )}
+              ) : electionState.totalCandidates === 0 ||
+                electionState.totalVoters === 0 ? (
+                <p className="text-xs mt-2">
+                  {electionState.totalCandidates === 0
+                    ? "Add candidates first"
+                    : "Register voters first"}
+                </p>
+              ) : null}
             </button>
 
             <button
               onClick={() => setShowConfirmModal("end")}
               disabled={electionState.state !== 1}
-              className="py-4 px-6 rounded-lg font-semibold transition duration-200 flex flex-col items-center justify-center"
+              className="py-4 px-6 rounded-lg font-semibold transition duration-200 flex flex-col items-center justify-center border-2"
               style={{
                 backgroundColor:
                   electionState.state === 1
-                    ? "var(--clr-danger-primary)"
+                    ? "#dc2626" // Red color for end election
+                    : "var(--clr-surface-a40)",
+                borderColor:
+                  electionState.state === 1
+                    ? "#dc2626"
                     : "var(--clr-surface-a40)",
                 color:
                   electionState.state === 1
-                    ? "var(--clr-text-inverse)"
+                    ? "white"
                     : "var(--clr-text-tertiary)",
                 cursor: electionState.state === 1 ? "pointer" : "not-allowed",
+                minHeight: "100px", // Increased minimum height for better visibility
+                minWidth: "220px", // Increased minimum width for better visibility
+                fontWeight: "bold", // Make text more prominent
+                fontSize: "16px", // Ensure readable font size
+                boxShadow:
+                  electionState.state === 1
+                    ? "0 4px 12px rgba(220, 38, 38, 0.3)"
+                    : "none", // Add shadow when active
               }}
               onMouseEnter={(e) => {
                 if (electionState.state === 1) {
                   e.target.style.opacity = "0.9";
+                  e.target.style.transform = "translateY(-2px)";
                 }
               }}
               onMouseLeave={(e) => {
                 if (electionState.state === 1) {
                   e.target.style.opacity = "1";
+                  e.target.style.transform = "translateY(0)";
                 }
               }}
             >
-              <div className="flex items-center justify-center">
-                <Square className="w-6 h-6 mr-2" />
-                End Election
+              <div className="flex items-center justify-center mb-2">
+                <Square className="w-7 h-7 mr-2" style={{ strokeWidth: 2.5 }} />
+                <span style={{ fontSize: "18px", fontWeight: "bold" }}>
+                  End Election
+                </span>
               </div>
               {electionState.state === 0 && (
-                <p className="text-xs mt-2">Start election first</p>
+                <p className="text-xs mt-1" style={{ opacity: 0.8 }}>
+                  Start election first
+                </p>
               )}
               {electionState.state === 2 && (
-                <p className="text-xs mt-2">Election has already ended</p>
+                <p className="text-xs mt-1" style={{ opacity: 0.8 }}>
+                  Election has already ended
+                </p>
+              )}
+              {electionState.state === 1 && (
+                <p
+                  className="text-xs mt-1"
+                  style={{ opacity: 0.9, color: "rgba(255, 255, 255, 0.9)" }}
+                >
+                  Click to end voting
+                </p>
               )}
             </button>
+
+            {/* Reset Election Button (only show when election has ended) */}
+            {electionState.state === 2 && (
+              <button
+                onClick={() => setShowConfirmModal("reset")}
+                className="py-4 px-6 rounded-lg font-semibold transition duration-200 flex flex-col items-center justify-center"
+                style={{
+                  backgroundColor: "var(--clr-primary)",
+                  color: "var(--clr-text-inverse)",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.opacity = "0.9";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.opacity = "1";
+                }}
+              >
+                <div className="flex items-center justify-center">
+                  <RefreshCw className="w-6 h-6 mr-2" />
+                  New Election
+                </div>
+                <p className="text-xs mt-2">Start fresh election</p>
+              </button>
+            )}
           </div>
 
           <div
@@ -500,8 +808,13 @@ const ManageElection = () => {
                   }}
                 >
                   <strong>Warning:</strong> These actions are permanent and
-                  cannot be undone. Ensure all candidates and voters are
-                  registered before starting the election.
+                  cannot be undone.
+                  {electionState.state === 0 &&
+                    " Ensure all candidates and voters are registered before starting the election."}
+                  {electionState.state === 1 &&
+                    " Ending the election will finalize all votes and display the results."}
+                  {electionState.state === 2 &&
+                    " Resetting will clear all data and allow you to start a new election."}
                 </p>
               </div>
             </div>
@@ -535,60 +848,149 @@ const ManageElection = () => {
                     "linear-gradient(135deg, var(--clr-surface-a20) 0%, var(--clr-surface-a30) 100%)",
                 }}
               >
-                <div className="flex items-center justify-between">
+                {winner.isDraw ? (
+                  // Draw case
                   <div>
-                    <div className="flex items-center mb-2">
-                      <Trophy
+                    <div className="flex items-center mb-4">
+                      <AlertTriangle
                         className="w-6 h-6 mr-2"
                         style={{
-                          color: "var(--clr-text-primary)",
+                          color: "var(--clr-warning-text)",
                         }}
                       />
                       <p
                         className="text-sm font-semibold"
                         style={{
-                          color: "var(--clr-text-primary)",
+                          color: "var(--clr-warning-text)",
                         }}
                       >
-                        WINNER
+                        DRAW - TIE RESULT
                       </p>
                     </div>
                     <h3
-                      className="text-3xl font-bold"
+                      className="text-2xl font-bold mb-4"
                       style={{
                         color: "var(--clr-text-primary)",
                       }}
                     >
-                      {winner.name}
+                      Multiple candidates tied with {winner.voteCount} votes
+                      each
                     </h3>
+                    <div className="space-y-3">
+                      {winner.candidates.map((candidate) => (
+                        <div
+                          key={candidate.id}
+                          className="flex items-center justify-between p-3 rounded-lg"
+                          style={{
+                            backgroundColor: "var(--clr-surface-a10)",
+                          }}
+                        >
+                          <div>
+                            <p
+                              className="font-semibold"
+                              style={{
+                                color: "var(--clr-text-primary)",
+                              }}
+                            >
+                              {candidate.name}
+                            </p>
+                            <p
+                              className="text-sm"
+                              style={{
+                                color: "var(--clr-text-secondary)",
+                              }}
+                            >
+                              {candidate.party}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p
+                              className="text-xl font-bold"
+                              style={{
+                                color: "var(--clr-text-primary)",
+                              }}
+                            >
+                              {candidate.voteCount}
+                            </p>
+                            <p
+                              className="text-xs"
+                              style={{
+                                color: "var(--clr-text-secondary)",
+                              }}
+                            >
+                              votes
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                     <p
-                      className="text-lg"
+                      className="text-sm mt-4 text-center"
                       style={{
-                        color: "var(--clr-text-secondary)",
+                        color: "var(--clr-warning-text)",
                       }}
                     >
-                      {winner.party}
+                      A tiebreaker process may be required according to election
+                      rules.
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p
-                      className="text-4xl font-bold"
-                      style={{
-                        color: "var(--clr-text-primary)",
-                      }}
-                    >
-                      {winner.voteCount}
-                    </p>
-                    <p
-                      className="text-sm"
-                      style={{
-                        color: "var(--clr-text-secondary)",
-                      }}
-                    >
-                      votes
-                    </p>
+                ) : (
+                  // Single winner case
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center mb-2">
+                        <Trophy
+                          className="w-6 h-6 mr-2"
+                          style={{
+                            color: "var(--clr-success-text)",
+                          }}
+                        />
+                        <p
+                          className="text-sm font-semibold"
+                          style={{
+                            color: "var(--clr-success-text)",
+                          }}
+                        >
+                          WINNER
+                        </p>
+                      </div>
+                      <h3
+                        className="text-3xl font-bold"
+                        style={{
+                          color: "var(--clr-text-primary)",
+                        }}
+                      >
+                        {winner.name}
+                      </h3>
+                      <p
+                        className="text-lg"
+                        style={{
+                          color: "var(--clr-text-secondary)",
+                        }}
+                      >
+                        {winner.party}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p
+                        className="text-4xl font-bold"
+                        style={{
+                          color: "var(--clr-text-primary)",
+                        }}
+                      >
+                        {winner.voteCount}
+                      </p>
+                      <p
+                        className="text-sm"
+                        style={{
+                          color: "var(--clr-text-secondary)",
+                        }}
+                      >
+                        votes
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
 
@@ -716,7 +1118,9 @@ const ManageElection = () => {
               >
                 {showConfirmModal === "start"
                   ? "Start Election?"
-                  : "End Election?"}
+                  : showConfirmModal === "end"
+                  ? "End Election?"
+                  : "Reset Election?"}
               </h3>
               <p
                 className="mb-6"
@@ -725,26 +1129,38 @@ const ManageElection = () => {
                 }}
               >
                 {showConfirmModal === "start"
-                  ? "Are you sure you want to start the election? Make sure all candidates and voters are registered."
-                  : "Are you sure you want to end the election? This action cannot be undone and results will be finalized."}
+                  ? `Are you sure you want to start the election "${
+                      electionName.trim() || "General Election 2025"
+                    }"? Make sure all candidates and voters are registered.`
+                  : showConfirmModal === "end"
+                  ? "Are you sure you want to end the election? This action cannot be undone and results will be finalized."
+                  : `Are you sure you want to reset the election? This will clear all candidates, voters, and votes. The new election will be named "${
+                      electionName.trim() || "New Election 2025"
+                    }".`}
               </p>
               <div className="flex space-x-4">
                 <button
                   onClick={() => setShowConfirmModal(null)}
                   disabled={actionLoading}
-                  className="flex-1 py-3 px-4 rounded-lg transition duration-200 font-semibold"
+                  className="flex-1 py-3 px-4 rounded-lg transition duration-200 font-semibold border-2"
                   style={{
-                    backgroundColor: "var(--clr-surface-a40)",
+                    backgroundColor: "var(--clr-surface-secondary)",
                     color: "var(--clr-text-primary)",
+                    borderColor: "var(--clr-surface-a40)",
+                    minHeight: "50px",
+                    fontSize: "16px",
                   }}
                   onMouseEnter={(e) => {
                     if (!actionLoading) {
-                      e.target.style.backgroundColor = "var(--clr-surface-a50)";
+                      e.target.style.backgroundColor = "var(--clr-surface-a20)";
+                      e.target.style.borderColor = "var(--clr-surface-a50)";
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!actionLoading) {
-                      e.target.style.backgroundColor = "var(--clr-surface-a40)";
+                      e.target.style.backgroundColor =
+                        "var(--clr-surface-secondary)";
+                      e.target.style.borderColor = "var(--clr-surface-a40)";
                     }
                   }}
                 >
@@ -754,27 +1170,47 @@ const ManageElection = () => {
                   onClick={
                     showConfirmModal === "start"
                       ? handleStartElection
-                      : handleEndElection
+                      : showConfirmModal === "end"
+                      ? handleEndElection
+                      : handleResetElection
                   }
                   disabled={actionLoading}
-                  className="flex-1 py-3 px-4 rounded-lg font-semibold transition duration-200"
+                  className="flex-1 py-3 px-4 rounded-lg font-semibold transition duration-200 border-2"
                   style={{
                     backgroundColor: actionLoading
                       ? "var(--clr-surface-a40)"
                       : showConfirmModal === "start"
                       ? "var(--clr-success-primary)"
-                      : "var(--clr-danger-primary)",
-                    color: "var(--clr-text-inverse)",
+                      : showConfirmModal === "end"
+                      ? "#dc2626"
+                      : "var(--clr-primary)",
+                    borderColor: actionLoading
+                      ? "var(--clr-surface-a40)"
+                      : showConfirmModal === "start"
+                      ? "var(--clr-success-primary)"
+                      : showConfirmModal === "end"
+                      ? "#dc2626"
+                      : "var(--clr-primary)",
+                    color: "white",
                     cursor: actionLoading ? "not-allowed" : "pointer",
+                    minHeight: "50px",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                    boxShadow:
+                      showConfirmModal === "end"
+                        ? "0 4px 12px rgba(220, 38, 38, 0.3)"
+                        : "0 4px 12px rgba(59, 130, 246, 0.3)",
                   }}
                   onMouseEnter={(e) => {
                     if (!actionLoading) {
                       e.target.style.opacity = "0.9";
+                      e.target.style.transform = "translateY(-1px)";
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!actionLoading) {
                       e.target.style.opacity = "1";
+                      e.target.style.transform = "translateY(0)";
                     }
                   }}
                 >
@@ -785,8 +1221,10 @@ const ManageElection = () => {
                     </span>
                   ) : showConfirmModal === "start" ? (
                     "Yes, Start"
-                  ) : (
+                  ) : showConfirmModal === "end" ? (
                     "Yes, End"
+                  ) : (
+                    "Yes, Reset"
                   )}
                 </button>
               </div>

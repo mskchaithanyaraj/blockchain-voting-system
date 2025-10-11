@@ -101,6 +101,18 @@ router.post(
 router.post("/election/end", verifyToken, isAdmin, adminController.endElection);
 
 /**
+ * @route   POST /api/admin/election/reset
+ * @desc    Reset the election to start a new one
+ * @access  Admin only
+ */
+router.post(
+  "/election/reset",
+  verifyToken,
+  isAdmin,
+  adminController.resetElection
+);
+
+/**
  * @route   GET /api/admin/election/results
  * @desc    Get election results
  * @access  Admin only

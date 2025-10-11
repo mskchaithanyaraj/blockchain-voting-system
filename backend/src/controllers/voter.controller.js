@@ -136,13 +136,19 @@ exports.getVoterStatus = async (req, res) => {
 
     // Get candidate details if voted
     let votedCandidate = null;
-    if (user.hasVoted && user.votedCandidateId) {
+    if (blockchainStatus.hasVoted && blockchainStatus.votedCandidateId > 0) {
       try {
         votedCandidate = await blockchainService.getCandidate(
-          user.votedCandidateId
+          blockchainStatus.votedCandidateId
         );
       } catch (error) {
         console.error("Error fetching voted candidate:", error);
+        // If candidate fetch fails, we can still show the ID
+        votedCandidate = {
+          id: blockchainStatus.votedCandidateId,
+          name: "Unknown Candidate",
+          party: "Unknown Party",
+        };
       }
     }
 
@@ -156,13 +162,7 @@ exports.getVoterStatus = async (req, res) => {
         isRegistered: blockchainStatus.isRegistered, // Use blockchain as source of truth
         hasVoted: blockchainStatus.hasVoted, // Use blockchain as source of truth
         votedCandidateId: blockchainStatus.votedCandidateId, // Use blockchain as source of truth
-        votedCandidate: votedCandidate
-          ? {
-              id: votedCandidate.id,
-              name: votedCandidate.name,
-              party: votedCandidate.party,
-            }
-          : null,
+        votedCandidate: votedCandidate,
         blockchainVerification: {
           isRegistered: blockchainStatus.isRegistered,
           hasVoted: blockchainStatus.hasVoted,

@@ -77,16 +77,49 @@ exports.registerVotersBatch = async (req, res) => {
 // Start the election
 exports.startElection = async (req, res) => {
   try {
-    const tx = await blockchainService.startElection();
+    const { electionName } = req.body;
+
+    if (!electionName || electionName.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        error: "ValidationError",
+        message: "Election name is required",
+      });
+    }
+
+    const tx = await blockchainService.startElection(electionName.trim());
     return res.status(200).json({
       success: true,
       message: "Election started successfully",
       data: tx,
     });
   } catch (error) {
-    return res.status(500).json({
+    console.error("Start election error:", error);
+
+    // Determine appropriate HTTP status code based on error type
+    let statusCode = 500;
+    let errorType = "StartElectionFailed";
+
+    if (
+      error.message.includes("Cannot start election without candidates") ||
+      error.message.includes("Cannot start election without registered voters")
+    ) {
+      statusCode = 400; // Bad Request - prerequisites not met
+      errorType = "PrerequisitesNotMet";
+    } else if (
+      error.message.includes("Access denied") ||
+      error.message.includes("Only admin")
+    ) {
+      statusCode = 403; // Forbidden
+      errorType = "AccessDenied";
+    } else if (error.message.includes("Election has already")) {
+      statusCode = 409; // Conflict
+      errorType = "ElectionStateConflict";
+    }
+
+    return res.status(statusCode).json({
       success: false,
-      error: "StartElectionFailed",
+      error: errorType,
       message: error.message,
     });
   }
@@ -105,6 +138,33 @@ exports.endElection = async (req, res) => {
     return res.status(500).json({
       success: false,
       error: "EndElectionFailed",
+      message: error.message,
+    });
+  }
+};
+
+// Reset the election
+exports.resetElection = async (req, res) => {
+  try {
+    const { electionName } = req.body;
+    if (!electionName || electionName.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        error: "ValidationError",
+        message: "Election name is required",
+      });
+    }
+
+    const tx = await blockchainService.resetElection(electionName.trim());
+    return res.status(200).json({
+      success: true,
+      message: "Election reset successfully",
+      data: tx,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: "ResetElectionFailed",
       message: error.message,
     });
   }

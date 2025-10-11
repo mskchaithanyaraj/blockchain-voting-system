@@ -415,13 +415,31 @@ async function registerVotersBatch(voterAddresses) {
 
 /**
  * Start the election (Admin only)
+ * @param {string} electionName - Name of the election
  * @returns {Promise<Object>} Transaction receipt
  */
-async function startElection() {
+async function startElection(electionName = "General Election 2025") {
   try {
-    console.log("🚀 Starting election...");
+    console.log(`🚀 Starting election: ${electionName}...`);
 
-    const tx = await contract.startElection();
+    // Check prerequisites before attempting to start
+    const electionState = await contract.getElectionState();
+    const candidateCount = Number(electionState[2]);
+    const registeredVoterCount = Number(electionState[3]);
+
+    if (candidateCount === 0) {
+      throw new Error(
+        "Cannot start election without candidates. Please add at least one candidate first."
+      );
+    }
+
+    if (registeredVoterCount === 0) {
+      throw new Error(
+        "Cannot start election without registered voters. Please register at least one voter first."
+      );
+    }
+
+    const tx = await contract.startElection(electionName);
     console.log(`   Transaction hash: ${tx.hash}`);
 
     const receipt = await tx.wait();
@@ -437,7 +455,39 @@ async function startElection() {
     };
   } catch (error) {
     console.error("Error starting election:", error);
-    throw new Error(`Failed to start election: ${error.message}`);
+
+    // Provide more specific error messages based on the error type
+    let errorMessage = error.message;
+
+    if (error.code === "CALL_EXCEPTION") {
+      if (
+        error.reason &&
+        error.reason.includes("Cannot start election without candidates")
+      ) {
+        errorMessage =
+          "Cannot start election without candidates. Please add at least one candidate first.";
+      } else if (
+        error.reason &&
+        error.reason.includes("Cannot start election without registered voters")
+      ) {
+        errorMessage =
+          "Cannot start election without registered voters. Please register at least one voter first.";
+      } else if (
+        error.reason &&
+        error.reason.includes("Only admin can perform this action")
+      ) {
+        errorMessage = "Access denied: Only the admin can start the election.";
+      } else if (
+        error.reason &&
+        error.reason.includes("Election has already started")
+      ) {
+        errorMessage = "Election has already been started.";
+      } else {
+        errorMessage = "Transaction failed: " + (error.reason || error.message);
+      }
+    }
+
+    throw new Error(errorMessage);
   }
 }
 
@@ -466,6 +516,35 @@ async function endElection() {
   } catch (error) {
     console.error("Error ending election:", error);
     throw new Error(`Failed to end election: ${error.message}`);
+  }
+}
+
+/**
+ * Reset the election to start a new one (Admin only)
+ * @param {string} newElectionName - Name of the new election
+ * @returns {Promise<Object>} Transaction receipt
+ */
+async function resetElection(newElectionName) {
+  try {
+    console.log(`🔄 Resetting election with new name: ${newElectionName}...`);
+
+    const tx = await contract.resetElection(newElectionName);
+    console.log(`   Transaction hash: ${tx.hash}`);
+
+    const receipt = await tx.wait();
+    console.log(
+      `✅ Election reset successfully. Gas used: ${receipt.gasUsed.toString()}`
+    );
+
+    return {
+      success: true,
+      transactionHash: receipt.hash,
+      blockNumber: receipt.blockNumber,
+      gasUsed: receipt.gasUsed.toString(),
+    };
+  } catch (error) {
+    console.error("Error resetting election:", error);
+    throw new Error(`Failed to reset election: ${error.message}`);
   }
 }
 
@@ -610,6 +689,7 @@ module.exports = {
   registerVotersBatch,
   startElection,
   endElection,
+  resetElection,
   castVote,
   changeAdmin,
 

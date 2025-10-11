@@ -187,10 +187,11 @@ export const registerVotersBatch = (votersData) => {
 
 /**
  * Start the election (Admin only)
+ * @param {Object} electionData - Election data (electionName)
  * @returns {Promise} API response
  */
-export const startElection = () => {
-  return api.post("/admin/election/start");
+export const startElection = (electionData) => {
+  return api.post("/admin/election/start", electionData);
 };
 
 /**
@@ -199,6 +200,15 @@ export const startElection = () => {
  */
 export const endElection = () => {
   return api.post("/admin/election/end");
+};
+
+/**
+ * Reset the election (Admin only)
+ * @param {Object} electionData - Election data (electionName)
+ * @returns {Promise} API response
+ */
+export const resetElection = (electionData) => {
+  return api.post("/admin/election/reset", electionData);
 };
 
 /**

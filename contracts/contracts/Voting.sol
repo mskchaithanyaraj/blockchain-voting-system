@@ -44,10 +44,14 @@ contract Voting {
     uint256 public totalVotes;
     uint256 public registeredVoterCount;
     
+    // Keep track of voter addresses for reset functionality
+    address[] public voterAddresses;
+    
     // Events
     event ElectionCreated(string name, uint256 timestamp);
-    event ElectionStarted(uint256 startTime, uint256 timestamp);
+    event ElectionStarted(string name, uint256 startTime, uint256 timestamp);
     event ElectionEnded(uint256 endTime, uint256 timestamp);
+    event ElectionReset(string newName, uint256 timestamp);
     event CandidateAdded(uint256 indexed candidateId, string name, string party);
     event VoterRegistered(address indexed voter, uint256 timestamp);
     event VoteCast(address indexed voter, uint256 indexed candidateId, uint256 timestamp);
@@ -127,6 +131,7 @@ contract Voting {
             registrationTime: block.timestamp
         });
         
+        voterAddresses.push(_voterAddress);
         registeredVoterCount++;
         emit VoterRegistered(_voterAddress, block.timestamp);
     }
@@ -148,6 +153,7 @@ contract Voting {
                     votedCandidateId: 0,
                     registrationTime: block.timestamp
                 });
+                voterAddresses.push(voterAddr);
                 registeredVoterCount++;
                 emit VoterRegistered(voterAddr, block.timestamp);
             }
@@ -157,14 +163,17 @@ contract Voting {
     /**
      * @dev Start the election (only admin)
      */
-    function startElection() public onlyAdmin whenNotStarted {
+    function startElection(string memory _electionName) public onlyAdmin whenNotStarted {
         require(candidateCount > 0, "Cannot start election without candidates");
         require(registeredVoterCount > 0, "Cannot start election without registered voters");
+        require(bytes(_electionName).length > 0, "Election name cannot be empty");
         
+        // Update election name if provided
+        electionName = _electionName;
         electionState = ElectionState.Active;
         startTime = block.timestamp;
         
-        emit ElectionStarted(startTime, block.timestamp);
+        emit ElectionStarted(_electionName, startTime, block.timestamp);
     }
     
     /**
@@ -175,6 +184,35 @@ contract Voting {
         endTime = block.timestamp;
         
         emit ElectionEnded(endTime, block.timestamp);
+    }
+    
+    /**
+     * @dev Reset election to start a new one (only admin, only after election has ended)
+     */
+    function resetElection(string memory _newElectionName) public onlyAdmin whenEnded {
+        require(bytes(_newElectionName).length > 0, "Election name cannot be empty");
+        
+        // Reset election state
+        electionState = ElectionState.NotStarted;
+        electionName = _newElectionName;
+        startTime = 0;
+        endTime = 0;
+        totalVotes = 0;
+        
+        // Clear all candidates
+        for (uint256 i = 1; i <= candidateCount; i++) {
+            delete candidates[i];
+        }
+        candidateCount = 0;
+        
+        // Clear all voters
+        for (uint256 i = 0; i < voterAddresses.length; i++) {
+            delete voters[voterAddresses[i]];
+        }
+        delete voterAddresses;
+        registeredVoterCount = 0;
+        
+        emit ElectionReset(_newElectionName, block.timestamp);
     }
     
     /**

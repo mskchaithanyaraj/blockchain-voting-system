@@ -67,7 +67,28 @@ const ViewResults = () => {
 
   const getWinner = () => {
     if (results.length === 0) return null;
-    return results[0];
+
+    // Find the highest vote count
+    const maxVotes = Math.max(
+      ...results.map((candidate) => candidate.voteCount)
+    );
+
+    // Find all candidates with the highest vote count
+    const winnersWithMaxVotes = results.filter(
+      (candidate) => candidate.voteCount === maxVotes
+    );
+
+    // If multiple candidates have the same highest votes, it's a draw
+    if (winnersWithMaxVotes.length > 1 && maxVotes > 0) {
+      return {
+        isDraw: true,
+        candidates: winnersWithMaxVotes,
+        voteCount: maxVotes,
+      };
+    }
+
+    // If there's a clear winner or no votes at all
+    return winnersWithMaxVotes.length > 0 ? winnersWithMaxVotes[0] : null;
   };
 
   const getVotePercentage = (voteCount) => {
@@ -270,53 +291,159 @@ const ViewResults = () => {
                 "linear-gradient(135deg, var(--clr-surface-a20) 0%, var(--clr-surface-a30) 100%)",
             }}
           >
-            <div className="flex items-center justify-center mb-4">
-              <Trophy
-                className="w-16 h-16"
-                style={{
-                  color: "var(--clr-text-primary)",
-                }}
-              />
-            </div>
-            <h2
-              className="text-center text-3xl font-bold mb-2"
-              style={{
-                color: "var(--clr-text-primary)",
-              }}
-            >
-              Winner
-            </h2>
-            <p
-              className="text-center text-4xl font-extrabold mb-2"
-              style={{
-                color: "var(--clr-text-primary)",
-              }}
-            >
-              {winner.name}
-            </p>
-            <p
-              className="text-center text-2xl mb-4"
-              style={{
-                color: "var(--clr-text-secondary)",
-              }}
-            >
-              {winner.party}
-            </p>
-            <div className="text-center">
-              <p
-                className="text-xl"
-                style={{
-                  color: "var(--clr-text-primary)",
-                }}
-              >
-                <span className="font-bold">{winner.voteCount}</span> votes
-                <span className="mx-2">•</span>
-                <span className="font-bold">
-                  {getVotePercentage(winner.voteCount)}%
-                </span>{" "}
-                of total votes
-              </p>
-            </div>
+            {winner.isDraw ? (
+              // Draw case
+              <div>
+                <div className="flex items-center justify-center mb-4">
+                  <AlertTriangle
+                    className="w-16 h-16"
+                    style={{
+                      color: "var(--clr-warning-text)",
+                    }}
+                  />
+                </div>
+                <h2
+                  className="text-center text-3xl font-bold mb-4"
+                  style={{
+                    color: "var(--clr-text-primary)",
+                  }}
+                >
+                  DRAW - TIE RESULT
+                </h2>
+                <p
+                  className="text-center text-xl mb-6"
+                  style={{
+                    color: "var(--clr-text-secondary)",
+                  }}
+                >
+                  Multiple candidates tied with {winner.voteCount} votes each
+                </p>
+                <div className="space-y-3 max-w-2xl mx-auto">
+                  {winner.candidates.map((candidate) => (
+                    <div
+                      key={candidate.id}
+                      className="flex items-center justify-between p-4 rounded-lg"
+                      style={{
+                        backgroundColor: "var(--clr-surface-a10)",
+                      }}
+                    >
+                      <div>
+                        <p
+                          className="text-lg font-semibold"
+                          style={{
+                            color: "var(--clr-text-primary)",
+                          }}
+                        >
+                          {candidate.name}
+                        </p>
+                        <p
+                          className="text-sm"
+                          style={{
+                            color: "var(--clr-text-secondary)",
+                          }}
+                        >
+                          {candidate.party}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p
+                          className="text-2xl font-bold"
+                          style={{
+                            color: "var(--clr-text-primary)",
+                          }}
+                        >
+                          {candidate.voteCount}
+                        </p>
+                        <p
+                          className="text-xs"
+                          style={{
+                            color: "var(--clr-text-secondary)",
+                          }}
+                        >
+                          votes
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="text-center mt-6">
+                  <p
+                    className="text-lg"
+                    style={{
+                      color: "var(--clr-text-primary)",
+                    }}
+                  >
+                    <span className="font-bold">{winner.voteCount}</span> votes
+                    each
+                    <span className="mx-2">•</span>
+                    <span className="font-bold">
+                      {getVotePercentage(winner.voteCount)}%
+                    </span>{" "}
+                    of total votes
+                  </p>
+                  <p
+                    className="text-sm mt-2"
+                    style={{
+                      color: "var(--clr-warning-text)",
+                    }}
+                  >
+                    A tiebreaker process may be required according to election
+                    rules.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              // Single winner case
+              <div>
+                <div className="flex items-center justify-center mb-4">
+                  <Trophy
+                    className="w-16 h-16"
+                    style={{
+                      color: "var(--clr-text-primary)",
+                    }}
+                  />
+                </div>
+                <h2
+                  className="text-center text-3xl font-bold mb-2"
+                  style={{
+                    color: "var(--clr-text-primary)",
+                  }}
+                >
+                  Winner
+                </h2>
+                <p
+                  className="text-center text-4xl font-extrabold mb-2"
+                  style={{
+                    color: "var(--clr-text-primary)",
+                  }}
+                >
+                  {winner.name}
+                </p>
+                <p
+                  className="text-center text-2xl mb-4"
+                  style={{
+                    color: "var(--clr-text-secondary)",
+                  }}
+                >
+                  {winner.party}
+                </p>
+                <div className="text-center">
+                  <p
+                    className="text-xl"
+                    style={{
+                      color: "var(--clr-text-primary)",
+                    }}
+                  >
+                    <span className="font-bold">{winner.voteCount}</span> votes
+                    <span className="mx-2">•</span>
+                    <span className="font-bold">
+                      {getVotePercentage(winner.voteCount)}%
+                    </span>{" "}
+                    of total votes
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -503,7 +630,13 @@ const ViewResults = () => {
               {results.map((candidate, index) => {
                 const percentage = getVotePercentage(candidate.voteCount);
                 const rank = index + 1;
-                const isWinner = rank === 1;
+
+                // Check if this candidate is a winner (in case of draw, multiple winners)
+                const isWinner =
+                  winner &&
+                  ((winner.isDraw &&
+                    winner.candidates.some((c) => c.id === candidate.id)) ||
+                    (!winner.isDraw && candidate.id === winner.id));
 
                 return (
                   <div
@@ -611,12 +744,27 @@ const ViewResults = () => {
                         <span
                           className="px-3 py-1 rounded-full text-sm font-semibold flex items-center"
                           style={{
-                            backgroundColor: "var(--clr-surface-a30)",
-                            color: "var(--clr-text-primary)",
+                            backgroundColor:
+                              winner && winner.isDraw
+                                ? "var(--clr-warning-surface)"
+                                : "var(--clr-surface-a30)",
+                            color:
+                              winner && winner.isDraw
+                                ? "var(--clr-warning-text)"
+                                : "var(--clr-text-primary)",
                           }}
                         >
-                          <Trophy className="w-4 h-4 mr-1" />
-                          Winner
+                          {winner && winner.isDraw ? (
+                            <>
+                              <AlertTriangle className="w-4 h-4 mr-1" />
+                              Tied Winner
+                            </>
+                          ) : (
+                            <>
+                              <Trophy className="w-4 h-4 mr-1" />
+                              Winner
+                            </>
+                          )}
                         </span>
                       </div>
                     )}

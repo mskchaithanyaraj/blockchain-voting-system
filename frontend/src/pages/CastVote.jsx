@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   CheckCircle,
   XCircle,
@@ -7,6 +7,7 @@ import {
   Info,
   ExternalLink,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import * as apiService from "../services/api.service";
@@ -32,11 +33,80 @@ const CastVote = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [txHash, setTxHash] = useState(null);
+  const [showWalletMismatchModal, setShowWalletMismatchModal] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
+  const validateWalletAddress = useCallback(
+    (connectedAddress) => {
+      if (!user?.ethAddress || !connectedAddress) return true;
+
+      // Normalize addresses for comparison (both to lowercase)
+      const userAddress = user.ethAddress.toLowerCase();
+      const metaMaskAddress = connectedAddress.toLowerCase();
+
+      return userAddress === metaMaskAddress;
+    },
+    [user?.ethAddress]
+  );
+
+  const showAddressMismatchError = useCallback(
+    (connectedAddress) => {
+      if (!user?.ethAddress || !connectedAddress) return;
+
+      setShowWalletMismatchModal(true);
+    },
+    [user?.ethAddress]
+  );
+
+  // Memoized value to check if wallet address is valid (safe for render)
+  const isWalletAddressValid = useMemo(() => {
+    if (!user?.ethAddress || !walletAddress) return true;
+
+    const userAddress = user.ethAddress.toLowerCase();
+    const metaMaskAddress = walletAddress.toLowerCase();
+
+    return userAddress === metaMaskAddress;
+  }, [user?.ethAddress, walletAddress]);
   useEffect(() => {
     fetchPageData();
     checkWalletConnection();
-  }, []);
+
+    // Listen for MetaMask account changes
+    if (typeof window !== "undefined" && window.ethereum) {
+      const handleAccountsChanged = (accounts) => {
+        if (accounts.length > 0) {
+          const newAddress = accounts[0];
+          setWalletAddress(newAddress);
+          setWalletConnected(true);
+
+          // Validate the new address and show error if needed
+          const isValid = validateWalletAddress(newAddress);
+          if (!isValid) {
+            showAddressMismatchError(newAddress);
+          } else {
+            // Clear any previous error if address is now valid
+            setError(null);
+          }
+        } else {
+          setWalletAddress(null);
+          setWalletConnected(false);
+          setError("MetaMask disconnected. Please connect your wallet.");
+        }
+      };
+
+      window.ethereum.on("accountsChanged", handleAccountsChanged);
+
+      // Cleanup listener on component unmount
+      return () => {
+        if (window.ethereum.removeListener) {
+          window.ethereum.removeListener(
+            "accountsChanged",
+            handleAccountsChanged
+          );
+        }
+      };
+    }
+  }, [user, validateWalletAddress, showAddressMismatchError]);
 
   const fetchPageData = async () => {
     try {
@@ -53,7 +123,7 @@ const CastVote = () => {
 
       // Fetch election state
       const stateResponse = await apiService.getElectionState();
-      setElectionState(stateResponse.data.data.state.stateNumber);
+      setElectionState(stateResponse.data.data.state);
     } catch (err) {
       console.error("Error fetching page data:", err);
       setError(err.message || "Failed to load page data");
@@ -91,9 +161,38 @@ const CastVote = () => {
       await web3Provider.switchToGanache();
       setWalletAddress(address);
       setWalletConnected(true);
+
+      // Validate that connected wallet matches user's registered address
+      if (user?.ethAddress) {
+        const isValid = validateWalletAddress(address);
+        if (!isValid) {
+          showAddressMismatchError(address);
+        }
+      }
     } catch (err) {
       console.error("Error connecting wallet:", err);
       setError(err.message || "Failed to connect wallet");
+    }
+  };
+
+  const handleSwitchAccount = async () => {
+    try {
+      setError(null);
+      const address = await web3Provider.selectAccount();
+      await web3Provider.switchToGanache();
+      setWalletAddress(address);
+      setWalletConnected(true);
+
+      // Validate that the new wallet matches user's registered address
+      if (user?.ethAddress) {
+        const isValid = validateWalletAddress(address);
+        if (!isValid) {
+          showAddressMismatchError(address);
+        }
+      }
+    } catch (err) {
+      console.error("Error switching account:", err);
+      setError(err.message || "Failed to switch account");
     }
   };
 
@@ -106,6 +205,13 @@ const CastVote = () => {
     if (!walletConnected) {
       setError("Please connect your MetaMask wallet first");
       return;
+    }
+
+    // Validate MetaMask account matches user's registered address
+    const isValidAddress = validateWalletAddress(walletAddress);
+    if (!isValidAddress) {
+      showAddressMismatchError(walletAddress);
+      return; // Stop execution if addresses don't match
     }
 
     try {
@@ -245,6 +351,183 @@ const CastVote = () => {
           </p>
         </div>
 
+        {/* Voter Status Section */}
+        <div
+          className="mb-6 rounded-lg shadow-md p-6"
+          style={{
+            backgroundColor: "var(--clr-surface-secondary)",
+          }}
+        >
+          <h3
+            className="text-xl font-bold mb-4"
+            style={{
+              color: "var(--clr-text-primary)",
+            }}
+          >
+            Your Voting Status
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <div className="flex items-center">
+                {voterStatus.isRegistered ? (
+                  <CheckCircle
+                    className="w-5 h-5 mr-2"
+                    style={{ color: "var(--clr-success-text)" }}
+                  />
+                ) : (
+                  <XCircle
+                    className="w-5 h-5 mr-2"
+                    style={{ color: "var(--clr-danger-text)" }}
+                  />
+                )}
+                <span
+                  style={{
+                    color: voterStatus.isRegistered
+                      ? "var(--clr-success-text)"
+                      : "var(--clr-danger-text)",
+                  }}
+                >
+                  {voterStatus.isRegistered
+                    ? "Registered to vote"
+                    : "Not registered to vote"}
+                </span>
+              </div>
+              <div className="flex items-center">
+                {voterStatus.hasVoted ? (
+                  <CheckCircle
+                    className="w-5 h-5 mr-2"
+                    style={{ color: "var(--clr-success-text)" }}
+                  />
+                ) : (
+                  <XCircle
+                    className="w-5 h-5 mr-2"
+                    style={{ color: "var(--clr-warning-text)" }}
+                  />
+                )}
+                <span
+                  style={{
+                    color: voterStatus.hasVoted
+                      ? "var(--clr-success-text)"
+                      : "var(--clr-warning-text)",
+                  }}
+                >
+                  {voterStatus.hasVoted
+                    ? "Vote cast successfully"
+                    : "Haven't voted yet"}
+                </span>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center">
+                {electionState === 1 ? (
+                  <CheckCircle
+                    className="w-5 h-5 mr-2"
+                    style={{ color: "var(--clr-success-text)" }}
+                  />
+                ) : (
+                  <XCircle
+                    className="w-5 h-5 mr-2"
+                    style={{ color: "var(--clr-danger-text)" }}
+                  />
+                )}
+                <span
+                  style={{
+                    color:
+                      electionState === 1
+                        ? "var(--clr-success-text)"
+                        : "var(--clr-danger-text)",
+                  }}
+                >
+                  {electionState === 1
+                    ? "Election is active"
+                    : electionState === 0
+                    ? "Election not started"
+                    : "Election ended"}
+                </span>
+              </div>
+
+              <div className="flex items-center">
+                {walletConnected ? (
+                  isWalletAddressValid ? (
+                    <CheckCircle
+                      className="w-5 h-5 mr-2"
+                      style={{ color: "var(--clr-success-text)" }}
+                    />
+                  ) : (
+                    <XCircle
+                      className="w-5 h-5 mr-2"
+                      style={{ color: "var(--clr-error-text)" }}
+                    />
+                  )
+                ) : (
+                  <XCircle
+                    className="w-5 h-5 mr-2"
+                    style={{ color: "var(--clr-danger-text)" }}
+                  />
+                )}
+                <span
+                  style={{
+                    color: walletConnected
+                      ? isWalletAddressValid
+                        ? "var(--clr-success-text)"
+                        : "var(--clr-error-text)"
+                      : "var(--clr-danger-text)",
+                  }}
+                >
+                  {walletConnected
+                    ? isWalletAddressValid
+                      ? "Wallet connected"
+                      : "Wrong wallet connected"
+                    : "Wallet not connected"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Warning if voting requirements not met */}
+          {(!voterStatus.isRegistered ||
+            voterStatus.hasVoted ||
+            electionState !== 1 ||
+            candidates.length === 0) && (
+            <div
+              className="mt-4 p-3 rounded-lg"
+              style={{
+                backgroundColor: "var(--clr-warning-surface)",
+                borderColor: "var(--clr-warning-border)",
+              }}
+            >
+              <div className="flex items-start">
+                <AlertTriangle
+                  className="w-5 h-5 mr-2 mt-0.5"
+                  style={{ color: "var(--clr-warning-text)" }}
+                />
+                <div>
+                  <p
+                    className="text-sm font-semibold"
+                    style={{ color: "var(--clr-warning-text)" }}
+                  >
+                    Cannot Vote
+                  </p>
+                  <p
+                    className="text-xs mt-1"
+                    style={{ color: "var(--clr-warning-text)" }}
+                  >
+                    {!voterStatus.isRegistered &&
+                      "You need to be registered by an admin. "}
+                    {voterStatus.hasVoted &&
+                      "You have already cast your vote. "}
+                    {electionState !== 1 && "Election must be active. "}
+                    {candidates.length === 0 && "No candidates available. "}
+                    {!voterStatus.isRegistered &&
+                      "Contact an administrator to register your address: " +
+                        user?.ethAddress}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Error Message */}
         {error && (
           <div
@@ -273,6 +556,132 @@ const CastVote = () => {
                   {error}
                 </p>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Help Modal */}
+        {showHelpModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div
+              className="rounded-lg shadow-xl p-8 max-w-lg w-full mx-4 max-h-[40rem] overflow-y-auto"
+              style={{
+                backgroundColor: "var(--clr-surface-secondary)",
+              }}
+            >
+              <div className="flex items-center mb-4">
+                <div
+                  className="rounded-full p-2 mr-3"
+                  style={{
+                    backgroundColor: "var(--clr-primary)",
+                  }}
+                >
+                  <Info className="w-6 h-6 text-white" />
+                </div>
+                <h3
+                  className="text-xl font-bold"
+                  style={{
+                    color: "var(--clr-text-primary)",
+                  }}
+                >
+                  Please Switch MetaMask Account
+                </h3>
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-3">
+                  <div
+                    className="p-3 rounded-lg"
+                    style={{ backgroundColor: "var(--clr-success-surface)" }}
+                  >
+                    <p
+                      className="text-xs font-semibold mb-1 flex items-center"
+                      style={{ color: "var(--clr-success-text)" }}
+                    >
+                      <CheckCircle className="w-4 h-4 mr-1" /> Expected Account:
+                    </p>
+                    <p
+                      className="font-mono text-sm break-all"
+                      style={{ color: "var(--clr-text-primary)" }}
+                    >
+                      {user?.ethAddress}
+                    </p>
+                  </div>
+
+                  <div
+                    className="p-3 rounded-lg"
+                    style={{ backgroundColor: "var(--clr-warning-surface)" }}
+                  >
+                    <p
+                      className="text-xs font-semibold mb-1 flex items-center"
+                      style={{ color: "var(--clr-warning-text)" }}
+                    >
+                      <XCircle className="w-4 h-4 mr-1" /> Currently Connected:
+                    </p>
+                    <p
+                      className="font-mono text-sm break-all"
+                      style={{ color: "var(--clr-text-primary)" }}
+                    >
+                      {walletAddress}
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  className="p-4 rounded-lg"
+                  style={{ backgroundColor: "var(--clr-surface-a20)" }}
+                >
+                  <h5
+                    className="font-semibold mb-3"
+                    style={{ color: "var(--clr-text-primary)" }}
+                  >
+                    How to Switch Accounts:
+                  </h5>
+                  <ol
+                    className="space-y-2 text-sm"
+                    style={{ color: "var(--clr-text-secondary)" }}
+                  >
+                    <li className="flex items-start">
+                      <span className="font-semibold mr-2">1.</span>
+                      <span>Open MetaMask extension</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="font-semibold mr-2">2.</span>
+                      <span>Click on the account dropdown (top right)</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="font-semibold mr-2">3.</span>
+                      <span>Select the correct account from the list</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="font-semibold mr-2">4.</span>
+                      <span>Refresh this page</span>
+                    </li>
+                  </ol>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  setShowHelpModal(false);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="mt-6 w-full py-3 px-4 rounded-full font-semibold transition duration-200 border"
+                style={{
+                  backgroundColor: "var(--clr-primary)",
+                  color: "white",
+                  borderColor: "var(--clr-primary)",
+                  minHeight: "50px",
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.opacity = "0.9";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.opacity = "1";
+                }}
+              >
+                I Understand
+              </button>
             </div>
           </div>
         )}
@@ -364,55 +773,146 @@ const CastVote = () => {
               </a>
             </div>
           ) : walletConnected ? (
-            <div
-              className="flex items-center justify-between rounded-lg p-4 border"
-              style={{
-                backgroundColor: "var(--clr-success-surface)",
-                borderColor: "var(--clr-success-border)",
-              }}
-            >
-              <div className="flex items-center space-x-3">
-                <div
-                  className="rounded-full p-2"
-                  style={{
-                    backgroundColor: "var(--clr-success-primary)",
-                  }}
-                >
-                  <CheckCircle className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <p
-                    className="text-sm"
-                    style={{
-                      color: "var(--clr-text-tertiary)",
-                    }}
-                  >
-                    Connected Address
-                  </p>
-                  <p
-                    className="font-mono text-sm font-semibold"
-                    style={{
-                      color: "var(--clr-text-primary)",
-                    }}
-                  >
-                    {walletAddress
-                      ? `${walletAddress.slice(0, 10)}...${walletAddress.slice(
-                          -8
-                        )}`
-                      : ""}
-                  </p>
-                </div>
-              </div>
-              <span
-                className="px-3 py-1 rounded-full text-sm font-semibold"
+            <>
+              <div
+                className="flex items-center justify-between rounded-lg p-4 border"
                 style={{
-                  backgroundColor: "var(--clr-success-primary)",
-                  color: "white",
+                  backgroundColor: isWalletAddressValid
+                    ? "var(--clr-success-surface)"
+                    : "var(--clr-error-surface)",
+                  borderColor: isWalletAddressValid
+                    ? "var(--clr-success-border)"
+                    : "var(--clr-error-border)",
                 }}
               >
-                Connected
-              </span>
-            </div>
+                <div className="flex items-center space-x-3">
+                  <div
+                    className="rounded-full p-2"
+                    style={{
+                      backgroundColor: isWalletAddressValid
+                        ? "var(--clr-success-primary)"
+                        : "var(--clr-error-primary)",
+                    }}
+                  >
+                    {isWalletAddressValid ? (
+                      <CheckCircle className="w-6 h-6 text-white" />
+                    ) : (
+                      <XCircle className="w-6 h-6 text-white" />
+                    )}
+                  </div>
+                  <div>
+                    <p
+                      className="text-sm"
+                      style={{
+                        color: "var(--clr-text-tertiary)",
+                      }}
+                    >
+                      {isWalletAddressValid
+                        ? "Connected Address"
+                        : "Wrong Account"}
+                    </p>
+                    <p
+                      className="font-mono text-sm font-semibold"
+                      style={{
+                        color: "var(--clr-text-primary)",
+                      }}
+                    >
+                      {walletAddress
+                        ? `${walletAddress.slice(
+                            0,
+                            10
+                          )}...${walletAddress.slice(-8)}`
+                        : ""}
+                    </p>
+                    {!validateWalletAddress(walletAddress) && (
+                      <p
+                        className="text-xs mt-1"
+                        style={{
+                          color: "var(--clr-error-text)",
+                        }}
+                      >
+                        Expected: {user?.ethAddress?.slice(0, 10)}...
+                        {user?.ethAddress?.slice(-8)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span
+                    className="px-3 py-1 rounded-full text-sm font-semibold text-center"
+                    style={{
+                      backgroundColor: isWalletAddressValid
+                        ? "var(--clr-success-primary)"
+                        : "var(--clr-error-primary)",
+                      color: "white",
+                    }}
+                  >
+                    {isWalletAddressValid ? "Connected" : "Wrong Account"}
+                  </span>
+                  {!isWalletAddressValid && (
+                    <button
+                      onClick={() => setShowWalletMismatchModal(true)}
+                      className="w-6 h-6 rounded-full flex items-center justify-center transition duration-200"
+                      style={{
+                        backgroundColor: "var(--clr-surface-a30)",
+                        color: "var(--clr-text-primary)",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor =
+                          "var(--clr-surface-a40)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor =
+                          "var(--clr-surface-a30)";
+                      }}
+                      title="Need help with account mismatch?"
+                    >
+                      ?
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Wallet Management Buttons - Always show when connected */}
+              <div className="mt-4 flex space-x-3">
+                <button
+                  onClick={handleSwitchAccount}
+                  className="flex-1 px-4 py-2 rounded-lg transition duration-200 font-semibold text-sm"
+                  style={{
+                    backgroundColor: "var(--clr-surface-a40)",
+                    color: "var(--clr-text-primary)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = "var(--clr-surface-a50)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = "var(--clr-surface-a40)";
+                  }}
+                >
+                  Switch Account
+                </button>
+                <button
+                  onClick={() => {
+                    setWalletAddress(null);
+                    setWalletConnected(false);
+                    setError(null);
+                  }}
+                  className="flex-1 px-4 py-2 rounded-lg transition duration-200 font-semibold text-sm"
+                  style={{
+                    backgroundColor: "var(--clr-surface-a40)",
+                    color: "var(--clr-text-primary)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = "var(--clr-surface-a50)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = "var(--clr-surface-a40)";
+                  }}
+                >
+                  Disconnect
+                </button>
+              </div>
+            </>
           ) : (
             <button
               onClick={handleConnectWallet}
@@ -447,7 +947,9 @@ const CastVote = () => {
               color: "var(--clr-text-primary)",
             }}
           >
-            Step 2: Select Candidate
+            {voterStatus.hasVoted
+              ? "Your Selected Candidate"
+              : "Step 2: Select Candidate"}
           </h3>
           {candidates.length === 0 ? (
             <div className="text-center py-8">
@@ -455,7 +957,75 @@ const CastVote = () => {
                 No candidates available
               </p>
             </div>
+          ) : voterStatus.hasVoted ? (
+            // Show only the voted candidate when user has already voted
+            <div className="space-y-3">
+              {voterStatus.votedCandidate ? (
+                <div
+                  className="flex items-center p-4 border-2 rounded-lg"
+                  style={{
+                    borderColor: "var(--clr-success-primary)",
+                    backgroundColor: "var(--clr-success-surface)",
+                  }}
+                >
+                  <div className="flex items-center justify-center w-5 h-5 mr-4">
+                    <CheckCircle
+                      className="w-5 h-5"
+                      style={{ color: "var(--clr-success-primary)" }}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p
+                          className="text-lg font-bold"
+                          style={{
+                            color: "var(--clr-text-primary)",
+                          }}
+                        >
+                          {voterStatus.votedCandidate.name}
+                        </p>
+                        <p style={{ color: "var(--clr-text-secondary)" }}>
+                          {voterStatus.votedCandidate.party}
+                        </p>
+                        <p
+                          className="text-sm mt-1"
+                          style={{ color: "var(--clr-success-text)" }}
+                        >
+                          You voted for this candidate
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p
+                          className="text-sm"
+                          style={{
+                            color: "var(--clr-text-tertiary)",
+                          }}
+                        >
+                          Candidate ID
+                        </p>
+                        <p
+                          className="text-lg font-semibold"
+                          style={{
+                            color: "var(--clr-text-primary)",
+                          }}
+                        >
+                          #{voterStatus.votedCandidate.id}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p style={{ color: "var(--clr-text-secondary)" }}>
+                    Vote cast successfully, but candidate details unavailable
+                  </p>
+                </div>
+              )}
+            </div>
           ) : (
+            // Show all candidates for selection when user hasn't voted yet
             <div className="space-y-3">
               {candidates.map((candidate) => (
                 <label
@@ -488,7 +1058,7 @@ const CastVote = () => {
                     value={candidate.id}
                     checked={selectedCandidateId === candidate.id}
                     onChange={() => setSelectedCandidateId(candidate.id)}
-                    className="h-5 w-5 focus:ring-2"
+                    className="h-5 w-5"
                     style={{
                       accentColor: "var(--clr-success-primary)",
                     }}
@@ -641,6 +1211,133 @@ const CastVote = () => {
             </div>
           </div>
         </div>
+
+        {/* Wallet Address Mismatch Modal */}
+        {showWalletMismatchModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div
+              className="rounded-lg shadow-xl p-8 max-w-md w-full mx-4"
+              style={{
+                backgroundColor: "var(--clr-surface-secondary)",
+              }}
+            >
+              <div className="flex items-center mb-4">
+                <div
+                  className="rounded-full p-2 mr-3"
+                  style={{
+                    backgroundColor: "var(--clr-error-primary)",
+                  }}
+                >
+                  <AlertTriangle className="w-6 h-6 text-white" />
+                </div>
+                <h3
+                  className="text-xl font-bold"
+                  style={{
+                    color: "var(--clr-text-primary)",
+                  }}
+                >
+                  Please Switch MetaMask Account
+                </h3>
+              </div>
+
+              <div className="mb-6">
+                <p
+                  className="text-sm mb-4"
+                  style={{
+                    color: "var(--clr-text-secondary)",
+                  }}
+                >
+                  Your account is registered with a different wallet address
+                  than the one currently connected in MetaMask.
+                </p>
+
+                <div className="space-y-3">
+                  <div>
+                    <p
+                      className="text-xs font-semibold mb-1"
+                      style={{
+                        color: "var(--clr-success-text)",
+                      }}
+                    >
+                      Your Registered Address:
+                    </p>
+                    <p
+                      className="font-mono text-sm p-2 rounded"
+                      style={{
+                        backgroundColor: "var(--clr-success-surface)",
+                        color: "var(--clr-text-primary)",
+                      }}
+                    >
+                      {user?.ethAddress}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p
+                      className="text-xs font-semibold mb-1"
+                      style={{
+                        color: "var(--clr-error-text)",
+                      }}
+                    >
+                      Currently Connected:
+                    </p>
+                    <p
+                      className="font-mono text-sm p-2 rounded"
+                      style={{
+                        backgroundColor: "var(--clr-error-surface)",
+                        color: "var(--clr-text-primary)",
+                      }}
+                    >
+                      {walletAddress}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowWalletMismatchModal(false)}
+                  className="flex-1 py-3 px-4 rounded-lg font-semibold transition duration-200 border"
+                  style={{
+                    backgroundColor: "var(--clr-surface-secondary)",
+                    color: "var(--clr-text-primary)",
+                    borderColor: "var(--clr-surface-a40)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = "var(--clr-surface-a20)";
+                    e.target.style.borderColor = "var(--clr-primary)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor =
+                      "var(--clr-surface-secondary)";
+                    e.target.style.borderColor = "var(--clr-surface-a40)";
+                  }}
+                >
+                  I Understand
+                </button>
+                <button
+                  onClick={() => {
+                    setShowWalletMismatchModal(false);
+                    setShowHelpModal(true);
+                  }}
+                  className="flex-1 py-3 px-4 rounded-lg font-semibold transition duration-200"
+                  style={{
+                    backgroundColor: "var(--clr-surface-a40)",
+                    color: "var(--clr-text-primary)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = "var(--clr-surface-a50)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = "var(--clr-surface-a40)";
+                  }}
+                >
+                  Need Help
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
