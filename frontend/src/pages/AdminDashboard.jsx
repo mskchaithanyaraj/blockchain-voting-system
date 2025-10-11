@@ -1,5 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
+import {
+  Users,
+  UserCheck,
+  Vote,
+  BarChart3,
+  Settings,
+  RefreshCw,
+  Plus,
+  Calendar,
+} from "lucide-react";
 import * as apiService from "../services/api.service";
 
 /**
@@ -8,6 +19,7 @@ import * as apiService from "../services/api.service";
  */
 const AdminDashboard = () => {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const [stats, setStats] = useState({
     totalCandidates: 0,
     registeredVoters: 0,
@@ -70,35 +82,67 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div
+        className="flex items-center justify-center min-h-screen"
+        style={{
+          backgroundColor: "var(--clr-background-primary)",
+        }}
+      >
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+          <div
+            className="animate-spin rounded-full h-16 w-16 border-b-2 mx-auto mb-4"
+            style={{
+              borderColor: isDark
+                ? "var(--clr-surface-a30)"
+                : "var(--clr-surface-a40)",
+            }}
+          ></div>
+          <p style={{ color: "var(--clr-text-secondary)" }}>
+            Loading dashboard...
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+    <div
+      className="min-h-screen py-8 px-4 sm:px-6 lg:px-8"
+      style={{
+        backgroundColor: "var(--clr-background-primary)",
+      }}
+    >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1
+            className="text-4xl font-bold mb-2"
+            style={{
+              color: "var(--clr-text-primary)",
+            }}
+          >
             Admin Dashboard
           </h1>
-          <p className="text-gray-600">
+          <p style={{ color: "var(--clr-text-secondary)" }}>
             Welcome back, <span className="font-semibold">{user?.name}</span>
           </p>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+          <div
+            className="mb-6 border rounded-lg p-4"
+            style={{
+              backgroundColor: "var(--clr-error-surface)",
+              borderColor: "var(--clr-error-border)",
+              color: "var(--clr-error-text)",
+            }}
+          >
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg
-                  className="h-5 w-5 text-red-400"
+                  className="h-5 w-5"
+                  style={{ color: "var(--clr-error-primary)" }}
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -110,14 +154,21 @@ const AdminDashboard = () => {
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm text-red-800">{error}</p>
+                <p className="text-sm">{error}</p>
               </div>
             </div>
           </div>
         )}
 
         {/* Election Name Banner */}
-        <div className="mb-6 bg-blue-600 text-white rounded-lg shadow-lg p-6">
+        <div
+          className="mb-6 rounded-lg shadow-lg p-6"
+          style={{
+            backgroundColor: "var(--clr-surface-secondary)",
+            color: "var(--clr-text-primary)",
+            borderBottom: `1px solid var(--clr-surface-a20)`,
+          }}
+        >
           <h2 className="text-2xl font-bold mb-2">{stats.electionName}</h2>
           <div className="flex items-center">
             <span className="text-sm mr-2">Status:</span>
@@ -134,100 +185,154 @@ const AdminDashboard = () => {
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Total Candidates Card */}
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200">
+          <div
+            className="rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200"
+            style={{
+              backgroundColor: "var(--clr-surface-secondary)",
+            }}
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm font-medium mb-1">
+                <p
+                  className="text-sm font-medium mb-1"
+                  style={{
+                    color: "var(--clr-text-secondary)",
+                  }}
+                >
                   Total Candidates
                 </p>
-                <p className="text-3xl font-bold text-gray-900">
+                <p
+                  className="text-3xl font-bold"
+                  style={{
+                    color: "var(--clr-text-primary)",
+                  }}
+                >
                   {stats.totalCandidates}
                 </p>
               </div>
-              <div className="bg-blue-100 rounded-full p-3">
-                <svg
-                  className="w-8 h-8 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
+              <div
+                className="rounded-full p-3"
+                style={{
+                  backgroundColor: "var(--clr-surface-a20)",
+                }}
+              >
+                <Users
+                  className="w-8 h-8"
+                  style={{
+                    color: "var(--clr-text-secondary)",
+                  }}
+                />
               </div>
             </div>
           </div>
 
           {/* Registered Voters Card */}
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200">
+          <div
+            className="rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200"
+            style={{
+              backgroundColor: "var(--clr-surface-secondary)",
+            }}
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm font-medium mb-1">
+                <p
+                  className="text-sm font-medium mb-1"
+                  style={{
+                    color: "var(--clr-text-secondary)",
+                  }}
+                >
                   Registered Voters
                 </p>
-                <p className="text-3xl font-bold text-gray-900">
+                <p
+                  className="text-3xl font-bold"
+                  style={{
+                    color: "var(--clr-text-primary)",
+                  }}
+                >
                   {stats.registeredVoters}
                 </p>
               </div>
-              <div className="bg-green-100 rounded-full p-3">
-                <svg
-                  className="w-8 h-8 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                  />
-                </svg>
+              <div
+                className="rounded-full p-3"
+                style={{
+                  backgroundColor: "var(--clr-surface-a20)",
+                }}
+              >
+                <UserCheck
+                  className="w-8 h-8"
+                  style={{
+                    color: "var(--clr-text-secondary)",
+                  }}
+                />
               </div>
             </div>
           </div>
 
           {/* Total Votes Card */}
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200">
+          <div
+            className="rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200"
+            style={{
+              backgroundColor: "var(--clr-surface-secondary)",
+            }}
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm font-medium mb-1">
+                <p
+                  className="text-sm font-medium mb-1"
+                  style={{
+                    color: "var(--clr-text-secondary)",
+                  }}
+                >
                   Votes Cast
                 </p>
-                <p className="text-3xl font-bold text-gray-900">
+                <p
+                  className="text-3xl font-bold"
+                  style={{
+                    color: "var(--clr-text-primary)",
+                  }}
+                >
                   {stats.totalVotes}
                 </p>
               </div>
-              <div className="bg-purple-100 rounded-full p-3">
-                <svg
-                  className="w-8 h-8 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                  />
-                </svg>
+              <div
+                className="rounded-full p-3"
+                style={{
+                  backgroundColor: "var(--clr-surface-a20)",
+                }}
+              >
+                <Vote
+                  className="w-8 h-8"
+                  style={{
+                    color: "var(--clr-text-secondary)",
+                  }}
+                />
               </div>
             </div>
           </div>
 
           {/* Voter Turnout Card */}
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200">
+          <div
+            className="rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200"
+            style={{
+              backgroundColor: "var(--clr-surface-secondary)",
+            }}
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-500 text-sm font-medium mb-1">
+                <p
+                  className="text-sm font-medium mb-1"
+                  style={{
+                    color: "var(--clr-text-secondary)",
+                  }}
+                >
                   Voter Turnout
                 </p>
-                <p className="text-3xl font-bold text-gray-900">
+                <p
+                  className="text-3xl font-bold"
+                  style={{
+                    color: "var(--clr-text-primary)",
+                  }}
+                >
                   {stats.registeredVoters > 0
                     ? Math.round(
                         (stats.totalVotes / stats.registeredVoters) * 100
@@ -236,123 +341,159 @@ const AdminDashboard = () => {
                   %
                 </p>
               </div>
-              <div className="bg-orange-100 rounded-full p-3">
-                <svg
-                  className="w-8 h-8 text-orange-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
-                </svg>
+              <div
+                className="rounded-full p-3"
+                style={{
+                  backgroundColor: "var(--clr-surface-a20)",
+                }}
+              >
+                <BarChart3
+                  className="w-8 h-8"
+                  style={{
+                    color: "var(--clr-text-secondary)",
+                  }}
+                />
               </div>
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">
+        <div
+          className="rounded-lg shadow-md p-6 mb-8"
+          style={{
+            backgroundColor: "var(--clr-surface-secondary)",
+          }}
+        >
+          <h3
+            className="text-xl font-bold mb-4"
+            style={{
+              color: "var(--clr-text-primary)",
+            }}
+          >
             Quick Actions
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <a
               href="/admin/candidates"
-              className="flex items-center justify-center bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition duration-200"
+              className="flex items-center justify-center px-4 py-3 rounded-lg transition duration-200"
+              style={{
+                backgroundColor: "var(--clr-surface-a20)",
+                color: "var(--clr-text-primary)",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = "var(--clr-surface-a30)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "var(--clr-surface-a20)";
+              }}
             >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
+              <Plus className="w-5 h-5 mr-2" />
               Manage Candidates
             </a>
             <a
               href="/admin/voters"
-              className="flex items-center justify-center bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition duration-200"
+              className="flex items-center justify-center px-4 py-3 rounded-lg transition duration-200"
+              style={{
+                backgroundColor: "var(--clr-surface-a20)",
+                color: "var(--clr-text-primary)",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = "var(--clr-surface-a30)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "var(--clr-surface-a20)";
+              }}
             >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                />
-              </svg>
+              <UserCheck className="w-5 h-5 mr-2" />
               Manage Voters
             </a>
             <a
               href="/admin/election"
-              className="flex items-center justify-center bg-purple-600 text-white px-4 py-3 rounded-lg hover:bg-purple-700 transition duration-200"
+              className="flex items-center justify-center px-4 py-3 rounded-lg transition duration-200"
+              style={{
+                backgroundColor: "var(--clr-surface-a20)",
+                color: "var(--clr-text-primary)",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = "var(--clr-surface-a30)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "var(--clr-surface-a20)";
+              }}
             >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+              <Settings className="w-5 h-5 mr-2" />
               Manage Election
             </a>
             <button
               onClick={fetchDashboardData}
-              className="flex items-center justify-center bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-gray-700 transition duration-200"
+              className="flex items-center justify-center px-4 py-3 rounded-lg transition duration-200"
+              style={{
+                backgroundColor: "var(--clr-surface-a20)",
+                color: "var(--clr-text-primary)",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = "var(--clr-surface-a30)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "var(--clr-surface-a20)";
+              }}
             >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
-              </svg>
+              <RefreshCw className="w-5 h-5 mr-2" />
               Refresh Data
             </button>
           </div>
         </div>
 
         {/* System Information */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">
+        <div
+          className="rounded-lg shadow-md p-6"
+          style={{
+            backgroundColor: "var(--clr-surface-secondary)",
+          }}
+        >
+          <h3
+            className="text-xl font-bold mb-4"
+            style={{
+              color: "var(--clr-text-primary)",
+            }}
+          >
             System Information
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-gray-500 mb-1">Admin Email</p>
-              <p className="text-gray-900 font-medium">{user?.email}</p>
+              <p
+                className="text-sm mb-1"
+                style={{
+                  color: "var(--clr-text-secondary)",
+                }}
+              >
+                Admin Email
+              </p>
+              <p
+                className="font-medium"
+                style={{
+                  color: "var(--clr-text-primary)",
+                }}
+              >
+                {user?.email}
+              </p>
             </div>
             <div>
-              <p className="text-sm text-gray-500 mb-1">Wallet Address</p>
-              <p className="text-gray-900 font-medium font-mono text-sm">
+              <p
+                className="text-sm mb-1"
+                style={{
+                  color: "var(--clr-text-secondary)",
+                }}
+              >
+                Wallet Address
+              </p>
+              <p
+                className="font-medium font-mono text-sm"
+                style={{
+                  color: "var(--clr-text-primary)",
+                }}
+              >
                 {user?.ethAddress
                   ? `${user.ethAddress.slice(0, 10)}...${user.ethAddress.slice(
                       -8
@@ -361,16 +502,41 @@ const AdminDashboard = () => {
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-500 mb-1">Last Login</p>
-              <p className="text-gray-900 font-medium">
+              <p
+                className="text-sm mb-1"
+                style={{
+                  color: "var(--clr-text-secondary)",
+                }}
+              >
+                Last Login
+              </p>
+              <p
+                className="font-medium"
+                style={{
+                  color: "var(--clr-text-primary)",
+                }}
+              >
                 {user?.lastLogin
                   ? new Date(user.lastLogin).toLocaleString()
                   : "N/A"}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-500 mb-1">Account Status</p>
-              <span className="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium">
+              <p
+                className="text-sm mb-1"
+                style={{
+                  color: "var(--clr-text-secondary)",
+                }}
+              >
+                Account Status
+              </p>
+              <span
+                className="inline-block px-2 py-1 rounded text-sm font-medium"
+                style={{
+                  backgroundColor: "var(--clr-success-surface)",
+                  color: "var(--clr-success-text)",
+                }}
+              >
                 Active
               </span>
             </div>
