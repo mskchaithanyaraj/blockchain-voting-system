@@ -44,19 +44,11 @@ const Navbar = () => {
     <>
       {/* Main Navbar */}
       <nav
-        className={`
-          fixed top-0 left-0 right-0 z-50 transition-theme
-          backdrop-blur-lg border-b
-          ${
-            isDark
-              ? "bg-surface-a0/80 border-surface-a20"
-              : "bg-surface-a0/80 border-surface-a30"
-          }
-        `}
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b"
         style={{
           backgroundColor: isDark
-            ? "rgba(5, 5, 5, 0.8)"
-            : "rgba(255, 255, 255, 0.8)",
+            ? "var(--clr-surface-a0)"
+            : "var(--clr-light-a0)",
           borderBottomColor: isDark
             ? "var(--clr-surface-a20)"
             : "var(--clr-surface-a30)",
@@ -199,18 +191,19 @@ const Navbar = () => {
                   {/* Logout Button */}
                   <button
                     onClick={handleLogout}
-                    className={`
-                      px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300
-                      border hover:scale-105 focus-ring
-                      ${
-                        isDark
-                          ? "border-danger-a0 text-danger-a0 hover:bg-danger-a0 hover:text-surface-a0"
-                          : "border-danger-a0 text-danger-a0 hover:bg-danger-a0 hover:text-surface-a0"
-                      }
-                    `}
+                    className="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2"
                     style={{
-                      borderColor: "var(--clr-danger-a0)",
-                      color: "var(--clr-danger-a0)",
+                      backgroundColor: "var(--clr-error-primary)",
+                      color: "var(--clr-light-a0)",
+                      "--focus-ring-color": "var(--clr-error-primary)",
+                      "--focus-ring-offset-color": "var(--clr-surface-primary)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = "var(--clr-error-text)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor =
+                        "var(--clr-error-primary)";
                     }}
                   >
                     Logout
@@ -307,10 +300,7 @@ const Navbar = () => {
           onClick={() => setMobileMenuOpen(false)}
         >
           <div
-            className={`
-              absolute inset-0 transition-opacity duration-300
-              ${isDark ? "bg-surface-a0/80" : "bg-surface-a0/80"}
-            `}
+            className="absolute inset-0 transition-opacity duration-300"
             style={{
               backgroundColor: isDark
                 ? "rgba(5, 5, 5, 0.8)"
@@ -323,25 +313,14 @@ const Navbar = () => {
       {/* Mobile menu panel */}
       <div
         className={`
-          fixed top-16 left-0 right-0 z-50 transition-all duration-500 ease-in-out
-          backdrop-blur-lg border-b shadow-heavy
-          ${
-            mobileMenuOpen
-              ? "animate-slide-in-left"
-              : "translate-x-full opacity-0"
-          }
-          ${
-            isDark
-              ? "bg-surface-a0/95 border-surface-a20"
-              : "bg-surface-a0/95 border-surface-a30"
-          }
-          md:hidden
+          fixed top-16 right-0 w-80 h-full z-50 transition-all duration-300 ease-in-out
+          border-l shadow-heavy md:hidden
         `}
         style={{
           backgroundColor: isDark
-            ? "rgba(5, 5, 5, 0.95)"
-            : "rgba(255, 255, 255, 0.95)",
-          borderBottomColor: isDark
+            ? "var(--clr-surface-a0)"
+            : "var(--clr-light-a0)",
+          borderLeftColor: isDark
             ? "var(--clr-surface-a20)"
             : "var(--clr-surface-a30)",
           transform: mobileMenuOpen ? "translateX(0)" : "translateX(100%)",
@@ -426,18 +405,16 @@ const Navbar = () => {
                   setMobileMenuOpen(false);
                   handleLogout();
                 }}
-                className={`
-                  w-full text-left px-4 py-3 rounded-lg text-base font-medium
-                  transition-all duration-300 border
-                  ${
-                    isDark
-                      ? "border-danger-a0 text-danger-a0 hover:bg-danger-a0 hover:text-surface-a0"
-                      : "border-danger-a0 text-danger-a0 hover:bg-danger-a0 hover:text-surface-a0"
-                  }
-                `}
+                className="w-full text-left px-4 py-3 rounded-lg text-base font-medium transition-all duration-300"
                 style={{
-                  borderColor: "var(--clr-danger-a0)",
-                  color: "var(--clr-danger-a0)",
+                  backgroundColor: "var(--clr-error-primary)",
+                  color: "var(--clr-light-a0)",
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = "var(--clr-error-text)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = "var(--clr-error-primary)";
                 }}
               >
                 Logout

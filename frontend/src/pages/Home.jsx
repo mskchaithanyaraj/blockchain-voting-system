@@ -309,9 +309,8 @@ const Home = () => {
       {/* How It Works Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <h2
-          className={`text-3xl md:text-4xl font-bold text-center mb-12 ${
-            isDark ? "text-white" : "text-gray-900"
-          }`}
+          className="text-headline-large text-center mb-12 transition-colors duration-300"
+          style={{ color: "var(--clr-text-primary)" }}
         >
           How It Works
         </h2>
@@ -319,28 +318,23 @@ const Home = () => {
           {/* Step 1 */}
           <div className="text-center">
             <div
-              className={`
-              ${
-                isDark
-                  ? "bg-gradient-to-r from-gray-700 to-gray-800"
-                  : "bg-gradient-to-r from-gray-800 to-black"
-              } 
-              text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4
-            `}
+              className="rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4 transition-colors duration-300"
+              style={{
+                background: "var(--clr-gradient-primary)",
+                color: "var(--clr-text-on-accent)",
+              }}
             >
               1
             </div>
             <h3
-              className={`text-lg font-bold mb-2 ${
-                isDark ? "text-white" : "text-gray-900"
-              }`}
+              className="text-title-large mb-2 transition-colors duration-300"
+              style={{ color: "var(--clr-text-primary)" }}
             >
               Register
             </h3>
             <p
-              className={`text-sm ${
-                isDark ? "text-gray-300" : "text-gray-600"
-              }`}
+              className="text-body-medium transition-colors duration-300"
+              style={{ color: "var(--clr-text-secondary)" }}
             >
               Create an account with your Ethereum wallet address
             </p>
@@ -349,28 +343,23 @@ const Home = () => {
           {/* Step 2 */}
           <div className="text-center">
             <div
-              className={`
-              ${
-                isDark
-                  ? "bg-gradient-to-r from-gray-700 to-gray-800"
-                  : "bg-gradient-to-r from-gray-800 to-black"
-              } 
-              text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4
-            `}
+              className="rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4 transition-colors duration-300"
+              style={{
+                background: "var(--clr-gradient-primary)",
+                color: "var(--clr-text-on-accent)",
+              }}
             >
               2
             </div>
             <h3
-              className={`text-lg font-bold mb-2 ${
-                isDark ? "text-white" : "text-gray-900"
-              }`}
+              className="text-title-large mb-2 transition-colors duration-300"
+              style={{ color: "var(--clr-text-primary)" }}
             >
               Get Verified
             </h3>
             <p
-              className={`text-sm ${
-                isDark ? "text-gray-300" : "text-gray-600"
-              }`}
+              className="text-body-medium transition-colors duration-300"
+              style={{ color: "var(--clr-text-secondary)" }}
             >
               Admin verifies your eligibility to vote
             </p>
@@ -379,28 +368,23 @@ const Home = () => {
           {/* Step 3 */}
           <div className="text-center">
             <div
-              className={`
-              ${
-                isDark
-                  ? "bg-gradient-to-r from-gray-700 to-gray-800"
-                  : "bg-gradient-to-r from-gray-800 to-black"
-              } 
-              text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4
-            `}
+              className="rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4 transition-colors duration-300"
+              style={{
+                background: "var(--clr-gradient-primary)",
+                color: "var(--clr-text-on-accent)",
+              }}
             >
               3
             </div>
             <h3
-              className={`text-lg font-bold mb-2 ${
-                isDark ? "text-white" : "text-gray-900"
-              }`}
+              className="text-title-large mb-2 transition-colors duration-300"
+              style={{ color: "var(--clr-text-primary)" }}
             >
               Cast Vote
             </h3>
             <p
-              className={`text-sm ${
-                isDark ? "text-gray-300" : "text-gray-600"
-              }`}
+              className="text-body-medium transition-colors duration-300"
+              style={{ color: "var(--clr-text-secondary)" }}
             >
               Connect MetaMask and vote for your preferred candidate
             </p>
@@ -409,28 +393,23 @@ const Home = () => {
           {/* Step 4 */}
           <div className="text-center">
             <div
-              className={`
-              ${
-                isDark
-                  ? "bg-gradient-to-r from-gray-700 to-gray-800"
-                  : "bg-gradient-to-r from-gray-800 to-black"
-              } 
-              text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4
-            `}
+              className="rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-4 transition-colors duration-300"
+              style={{
+                background: "var(--clr-gradient-primary)",
+                color: "var(--clr-text-on-accent)",
+              }}
             >
               4
             </div>
             <h3
-              className={`text-lg font-bold mb-2 ${
-                isDark ? "text-white" : "text-gray-900"
-              }`}
+              className="text-title-large mb-2 transition-colors duration-300"
+              style={{ color: "var(--clr-text-primary)" }}
             >
               View Results
             </h3>
             <p
-              className={`text-sm ${
-                isDark ? "text-gray-300" : "text-gray-600"
-              }`}
+              className="text-body-medium transition-colors duration-300"
+              style={{ color: "var(--clr-text-secondary)" }}
             >
               Check the results after the election ends
             </p>
@@ -441,31 +420,30 @@ const Home = () => {
       {/* Technology Stack Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <h2
-          className={`text-3xl md:text-4xl font-bold text-center mb-12 ${
-            isDark ? "text-white" : "text-gray-900"
-          }`}
+          className="text-headline-large text-center mb-12 transition-colors duration-300"
+          style={{ color: "var(--clr-text-primary)" }}
         >
           Built With Modern Technology
         </h2>
         <div
-          className={`rounded-lg shadow-xl p-8 ${
-            isDark ? "bg-gray-800" : "bg-white"
-          }`}
+          className="rounded-lg p-8 transition-all duration-300"
+          style={{
+            backgroundColor: "var(--clr-surface-secondary)",
+            boxShadow: "var(--shadow-xl)",
+          }}
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-4xl mb-2">⛓️</div>
               <p
-                className={`font-semibold ${
-                  isDark ? "text-white" : "text-gray-900"
-                }`}
+                className="font-semibold transition-colors duration-300"
+                style={{ color: "var(--clr-text-primary)" }}
               >
                 Ethereum
               </p>
               <p
-                className={`text-sm ${
-                  isDark ? "text-gray-300" : "text-gray-600"
-                }`}
+                className="text-caption transition-colors duration-300"
+                style={{ color: "var(--clr-text-secondary)" }}
               >
                 Blockchain
               </p>
@@ -473,16 +451,14 @@ const Home = () => {
             <div>
               <div className="text-4xl mb-2">📜</div>
               <p
-                className={`font-semibold ${
-                  isDark ? "text-white" : "text-gray-900"
-                }`}
+                className="font-semibold transition-colors duration-300"
+                style={{ color: "var(--clr-text-primary)" }}
               >
                 Solidity
               </p>
               <p
-                className={`text-sm ${
-                  isDark ? "text-gray-300" : "text-gray-600"
-                }`}
+                className="text-caption transition-colors duration-300"
+                style={{ color: "var(--clr-text-secondary)" }}
               >
                 Smart Contracts
               </p>
@@ -490,16 +466,14 @@ const Home = () => {
             <div>
               <div className="text-4xl mb-2">⚛️</div>
               <p
-                className={`font-semibold ${
-                  isDark ? "text-white" : "text-gray-900"
-                }`}
+                className="font-semibold transition-colors duration-300"
+                style={{ color: "var(--clr-text-primary)" }}
               >
                 React
               </p>
               <p
-                className={`text-sm ${
-                  isDark ? "text-gray-300" : "text-gray-600"
-                }`}
+                className="text-caption transition-colors duration-300"
+                style={{ color: "var(--clr-text-secondary)" }}
               >
                 Frontend
               </p>
@@ -507,16 +481,14 @@ const Home = () => {
             <div>
               <div className="text-4xl mb-2">🦊</div>
               <p
-                className={`font-semibold ${
-                  isDark ? "text-white" : "text-gray-900"
-                }`}
+                className="font-semibold transition-colors duration-300"
+                style={{ color: "var(--clr-text-primary)" }}
               >
                 MetaMask
               </p>
               <p
-                className={`text-sm ${
-                  isDark ? "text-gray-300" : "text-gray-600"
-                }`}
+                className="text-caption transition-colors duration-300"
+                style={{ color: "var(--clr-text-secondary)" }}
               >
                 Wallet
               </p>
@@ -528,26 +500,35 @@ const Home = () => {
       {/* Footer CTA */}
       {!isAuthenticated && (
         <div
-          className={`
-          ${
-            isDark
-              ? "bg-gradient-to-r from-gray-800 to-black"
-              : "bg-gradient-to-r from-gray-800 to-black"
-          } 
-          py-16
-        `}
+          className="py-16 transition-colors duration-300"
+          style={{
+            background: "var(--clr-gradient-primary)",
+          }}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+            <h2
+              className="text-headline-large mb-6 transition-colors duration-300"
+              style={{ color: "var(--clr-text-on-accent)" }}
+            >
               Ready to Get Started?
             </h2>
-            <p className="text-xl text-white mb-8 opacity-90">
+            <p
+              className="text-title-large mb-8 opacity-90 transition-colors duration-300"
+              style={{ color: "var(--clr-text-on-accent)" }}
+            >
               Join us in revolutionizing the voting process with blockchain
               technology
             </p>
             <Link
               to="/register"
-              className="inline-block px-8 py-4 bg-white text-black rounded-lg hover:bg-gray-100 transition duration-200 font-bold text-lg shadow-xl"
+              className="inline-block px-8 py-4 rounded-lg font-bold text-body-large transition-all duration-300 hover:scale-105"
+              style={{
+                backgroundColor: isDark
+                  ? "var(--clr-dark-a0)"
+                  : "var(--clr-light-a0)",
+                color: isDark ? "var(--clr-light-a0)" : "var(--clr-dark-a0)",
+                boxShadow: "var(--shadow-xl)",
+              }}
             >
               Create Your Account
             </Link>

@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import ErrorMessage from "./ErrorMessage";
 import SuccessMessage from "./SuccessMessage";
 import LoadingSpinner from "./LoadingSpinner";
+import PasswordInput from "./PasswordInput";
 
 /**
  * Register Form Component
@@ -279,10 +280,9 @@ const RegisterForm = () => {
               >
                 Password
               </label>
-              <input
+              <PasswordInput
                 id="password"
                 name="password"
-                type="password"
                 autoComplete="new-password"
                 required
                 value={formData.password}
@@ -308,10 +308,9 @@ const RegisterForm = () => {
               >
                 Confirm Password
               </label>
-              <input
+              <PasswordInput
                 id="confirmPassword"
                 name="confirmPassword"
-                type="password"
                 autoComplete="new-password"
                 required
                 value={formData.confirmPassword}
